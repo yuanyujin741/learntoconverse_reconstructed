@@ -1,9 +1,9 @@
 # utils.py
 
-
 # region general
 import numpy as np
 import torch
+print("device = cuda:", torch.cuda.is_available())
 from torch import nn
 import torch.nn.functional as F
 import random
@@ -11,17 +11,19 @@ import os
 import time
 import copy
 import pdb
+from collections import defaultdict
+import json
 
 class Config():
-    def __init__(self, DBM = True, continue_training = False, envs_NK=[[2,2],[2,3],[3,2],[3,3]], env_config={"ob_dim":384 - 1}, use_pretrained_model=False, pretrained_model_id = None, new_ineq_num_factor = 0.3, num_worker = 3):
+    def __init__(self, DBM = True, continue_training = False, envs_NK=[[2,2],[2,3],[3,2],[3,3]], use_pretrained_model=False, pretrained_model_id = None, new_ineq_num_factor = 0.3, num_worker = 3):
         self.DBM = DBM
         self.continue_training = continue_training
         self.set_task_id() # 基于是否继续训练设置一个合理的id
         self.envs_NK = envs_NK
-        self.env_config = env_config
         self.use_pretrained_model = use_pretrained_model
         self.pretrained_model_id = pretrained_model_id
         assert self.use_pretrained_model == False or self.pretrained_model_id != None
+        assert self.use_pretrained_model == False or self.continue_training == False # 总之就是，从原来的最大的id继续训练（保存在该id处）；要么指定一个id，从这个id，训练出来一个新的id（自动寻找的最大的id）
         self.new_ineq_num_factor = new_ineq_num_factor
         self.log_dir = f"02all_data/{self.task_id}"
         self.num_worker = num_worker
@@ -47,11 +49,11 @@ class Config():
         else:
             self.task_id = f"{new_id:03d}"  # 格式化为三位数字字符串
     
-    def set_policy_config(self, max_epoch_num = 1000, n_directions = 4, evaluate_time = 3, learning_rate = 0.01, gamma = 0.97, std = 0.02):
+    def set_policy_config(self, max_rollout_num = 1000, n_directions = 4, evaluate_time = 3, learning_rate = 0.01, gamma = 0.97, std = 0.02):
         """
-        :param: max_epoch_num: 最大epoch数，也就是最大进行多少次全部envs的rollout；取代了max_step
+        :param: max_rollout_num: 最大rollout数，也就是最大进行多少次全部envs的rollout；取代了max_step
         """
-        self.max_epoch_num = max_epoch_num
+        self.max_rollout_num = max_rollout_num
         self.n_directions = n_directions
         assert n_directions%2 == 0, "n_directions must be even"
         self.evaluate_time = evaluate_time
@@ -73,6 +75,7 @@ class Config():
         self.network_param['hsize'] = 64
         self.network_param['numlayers'] = 2
         self.network_param['embed'] = 100
+        self.network_param["numvars"] = 384-1 # obdim - 1
         #self.network_param['rowembed'] = 200
         self.device = device
 
@@ -85,6 +88,57 @@ def set_seed(args):
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
     torch.cuda.manual_seed(args.seed)
+
+def save_log(config:Config, log:dict):
+    """
+    保存log到指定的目录
+    """
+    log_path = f"02all_data/{config.task_id}/log.json"
+    with open(log_path,"w+") as f:
+        json.dump(log, f, indent=2 )
+    print(f"log saved to {log_path}")
+
+def load_log(config:Config):
+    with open(f"02all_data/{config.task_id}/log.json","r") as f:
+        log = json.load(f)
+    return log
+
+def create_new_log(config:Config):
+    """
+    log 结构都显示在这里了。
+    """
+    log = {
+        "timesteps": [], # 每个rollout对应的总的timestep
+        "rollout_id": [],  # 每个rollout的编号
+        "rewards": [], # 结构上，每个worker有一个single_worker_rewards作为一次rollout的返回结果；各个worker的保存在workers_rewards中，然后一起放入rewards。最后几个是evaluate的结果啊。
+        "losses": [], # 每个rollout对应的loss
+        "clocktime": [], # 指的是总时间
+        "meta_data":[
+            {
+                "config": {
+                    k: str(v) if not isinstance(v, (int, float, str, bool, list, dict)) else v
+                    for k, v in vars(config).items()
+                },
+                "start_time": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "start_time_in_seconds": time.time(),
+                "end_time": None,
+                "end_time_in_seconds": None,
+            }
+        ] # different training for different meta data
+    } # 不方便直接观察了，但是也可以在写一个函数实现动态可视化。
+    return log
+
+def add_new_meta_data(log:dict, config:Config):
+    log["meta_data"].append({
+        "config": {
+            k: str(v) if not isinstance(v, (int, float, str, bool, list, dict)) else v
+            for k, v in vars(config).items()
+        },
+        "start_time": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "start_time_in_seconds": time.time(),
+        "end_time": None,
+        "end_time_in_seconds": None,
+    })
 
 # region envs
 from converseenv import ConverseEnv
@@ -114,10 +168,11 @@ class AttentionPolicy(nn.Module):
     """
     这一部分代码由ai直接使用pytorch重构。嗯，deepseek-R1。
     因为不是自己写的，所以这里对config的使用不足，就这样吧，懒得改了。
-    对代码进行检查。
+    人类对代码进行检查，感觉没问题，后续做debug再说吧。
     """
-    def __init__(self, policy_params):
+    def __init__(self, policy_params,device = "cpu"):
         super().__init__()
+        self.device = device
         self.numvars = policy_params['numvars']
         hsize = policy_params['hsize']
         numlayers = policy_params['numlayers']
@@ -128,7 +183,7 @@ class AttentionPolicy(nn.Module):
         self.param_encoder = nn.Sequential(
             nn.Linear(2, self.param_embed_dim),
             nn.Tanh()
-        )
+        ).to(self.device)
 
         # 构建MLP和FiLM生成器
         self.layers = nn.ModuleList() # 这个是映射层哎。
@@ -140,13 +195,13 @@ class AttentionPolicy(nn.Module):
                 layer = nn.Linear(input_dim, hsize)
             else:
                 layer = nn.Linear(hsize, hsize)
-            self.layers.append(layer)
+            self.layers.append(layer.to(self.device))
             
             # FiML生成器
             film_gen = nn.Sequential(
                 nn.Linear(self.param_embed_dim, 2*hsize),
                 nn.Tanh()
-            )
+            ).to(self.device)
             self.film_generators.append(film_gen)
         
         # 输出层
@@ -179,8 +234,8 @@ class AttentionPolicy(nn.Module):
         A, b, c0, cutsa, cutsb = ob
         
         # 数据预处理
-        baseob_original = torch.from_numpy(np.column_stack((A, b))).float()
-        ob_original = torch.from_numpy(np.column_stack((cutsa, cutsb))).float()
+        baseob_original = torch.from_numpy(np.column_stack((A, b))).float().to(self.device)
+        ob_original = torch.from_numpy(np.column_stack((cutsa, cutsb))).float().to(self.device)
         
         try:
             totalob_original = torch.cat([baseob_original, ob_original], dim=0)
@@ -192,15 +247,16 @@ class AttentionPolicy(nn.Module):
         totalob_original = (totalob_original - totalob_original.min()) / (totalob_original.max() - totalob_original.min() + 1e-8)
         
         # 应用filter
-        totalob_np = self.observation_filter(totalob_original.numpy(), update=update)
-        totalob = torch.from_numpy(totalob_np).float()
-        
+        # totalob_np = self.observation_filter(totalob_original.numpy(), update=update)
+        # totalob = torch.from_numpy(totalob_np).float().to(self.device)
+        totalob = totalob_original # 因为没有使用filter，在这里啊。
+
         # 分割数据
         baseob = totalob[:A.shape[0]]
         ob = totalob[A.shape[0]:]
         
         # 参数编码
-        NK = torch.tensor([[n_value, k_value]], dtype=torch.float)
+        NK = torch.tensor([[n_value, k_value]], dtype=torch.float).to(self.device)
         NK_embed = self.param_encoder(NK)
         
         # 前向传播
@@ -237,11 +293,18 @@ class AttentionPolicy(nn.Module):
         return action
 
     def get_weights(self):
+        """
+        The get_weights method is already correct as it moves weights to CPU before converting to numpy arrays, 
+        which is the standard practice since numpy only works with CPU data.
+        """
         return {k: v.cpu().detach().numpy() for k, v in self.state_dict().items()}
 
     def update_weights(self, weights_dict):
-        self.load_state_dict({k: torch.from_numpy(v) for k, v in weights_dict.items()})
+        """
+        Update the policy's weights using a dictionary of numpy arrays.
+        """
+        self.load_state_dict({k: torch.from_numpy(v).to(self.device) for k, v in weights_dict.items()})
 
-    def get_weights_plus_stats(self):
-        mu, std = self.observation_filter.get_stats()
-        return self.get_weights(), mu, std
+    # def get_weights_plus_stats(self):
+    #     mu, std = self.observation_filter.get_stats()
+    #     return self.get_weights(), mu, std

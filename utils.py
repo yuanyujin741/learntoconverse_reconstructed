@@ -13,6 +13,8 @@ import copy
 import pdb
 from collections import defaultdict
 import json
+from multiprocessing import Pool
+import sys
 
 class Config():
     def __init__(self, DBM = True, continue_training = False, envs_NK=[[2,2],[2,3],[3,2],[3,3]], use_pretrained_model=False, pretrained_model_id = None, new_ineq_num_factor = 0.3, num_worker = 3):
@@ -60,6 +62,7 @@ class Config():
         self.learning_rate = learning_rate
         self.gamma = gamma
         self.std = std
+        self.rollout_length = 10 # 默认超过十次之后就直接结束了，不确定是否有用。
 
     def print_config(self):
         print('-'*3,"config",'-'*3)
@@ -308,3 +311,110 @@ class AttentionPolicy(nn.Module):
     # def get_weights_plus_stats(self):
     #     mu, std = self.observation_filter.get_stats()
     #     return self.get_weights(), mu, std
+
+# region rollout
+def create_epsilon_table(config:Config,policy:AttentionPolicy):
+    """
+    创建epsilon表。是的，对称建立的哎。
+    """
+    epsilon_table = []
+    # 原始参数
+    original_state_dict = policy.state_dict
+
+    for _ in range(config.n_directions // 2):
+        epsilon = {}
+        neg_epsilon = {}
+        for key, param in original_state_dict.items():
+            epsilon[key] = torch.randn_like(param) * config.std # 原来是正太分布，现在是config.std的正态分布
+            neg_epsilon[key] = -epsilon[key]
+        epsilon_table.append(epsilon)
+        epsilon_table.append(neg_epsilon)
+    
+    assert len(epsilon_table) == config.n_directions, "len(epsilon_table) != config.n_directions"
+    return epsilon_table
+
+
+def rollout_workers(envs_s:list,epsilon_table:list,original_policy:AttentionPolicy,config:Config):
+    """
+    并行计算rollout
+    参考文件01example/多进程测试文件/07
+    :param: envs_s: 环境列表，而且是双层的哎。
+    """
+    num_task = config.evaluate_time + config.n_directions
+    num_worker = config.num_worker
+    results = []
+    with Pool(processes=num_worker) as pool:
+        epsilon_ids = range(num_task) # 值得包含evaluate的全部的ids啊
+        async_results = [pool.apply_async(rollout_envs,args=(
+            envs_s[i],
+            copy.deepcopy(original_policy).load_state_dict(add_state_dict(original_policy.state_dict,epsilon_table[i],config.device)) if i<config.n_directions else copy.deepcopy(original_policy),
+            config,
+            i
+        )) for i in epsilon_ids]
+        results = [async_result.get() for async_result in async_results]
+    return results
+
+
+def rollout_envs(envs:list[ConverseEnvWrapper], policy:AttentionPolicy, config:Config, epsilon_id):
+    """
+    直接来自alg_utils移植，只是修改了参数传递的方式。
+    adding NEWINQ_NUM, modified by Yuan at 2025/5/18
+    adding NEWINQ_NUMlist, modified by Yuan at 2025/5/27
+    已经对输出进行了重定向。重定向的位置是：02all_data/{config.task_id}/rollout_output/{epsilon_id}.txt下面
+    """
+    assert envs[0].epsilon_id == epsilon_id, "envs[0].epsilon_id != epsilon_id"
+    os.makedirs(f"02all_data/{config.task_id}/rollout_output",exist_ok=True)
+    output_path = f"02all_data/{config.task_id}/rollout_output/{epsilon_id}.txt"
+    with open(output_path,"w+") as f:
+        sys.stdout = f
+
+        rewards = []
+        times = []
+        for i, env in enumerate(envs):
+            r, t = rollout(env= env, policy=policy, rollout_length=config.rollout_length, gamma=config.gamma, NumFactor=config.new_ineq_num_factor)
+            rewards.append(r)
+            times.append(t)
+
+    return epsilon_id, rewards, times
+
+def rollout(env, policy, rollout_length, gamma, NumFactor):
+    """
+    删掉num_rollouts，因为都是只做一次rollout就好了。针对的是一个环境进行rollout哎。
+    without rewriting this function.by Yuan at 2025/5/18.
+    change NUM to NumFactor to use Factor here.
+    """
+    ob, _ = env.reset()
+    factor = 1.0 # factor is gamma**n
+    #ob = env.reset()
+    done = False
+    t = 0
+    rsum = 0
+    while not done and t <= rollout_length:
+        action = policy.act(ob,num=int(NumFactor*len(ob[-1])),n_value=env.N, k_value=env.K)
+        #print(action)
+        ob, r, done = env.step(action)
+        #ob, r, done, _ = env.step(action)
+        rsum += r * factor
+        factor *= gamma
+        t += 1
+    #rewards.append(rsum)
+    #times.append(t)
+    return rsum,t # 每个环境的返回值从[]重塑为float
+
+def add_state_dict(state_dict1, state_dict2,device):
+    """
+    将两个state_dict逐元素相加，done by deepseek V3
+    :param state_dict1: 第一个模型状态字典
+    :param state_dict2: 第二个模型状态字典
+    :return: 相加后的新状态字典
+    """
+    result = {}
+    for key in state_dict1:
+        if key in state_dict2:
+            # 确保张量在相同设备上
+            tensor1 = state_dict1[key].to(device)
+            tensor2 = state_dict2[key].to(device)
+            result[key] = tensor1 + tensor2
+        else:
+            raise KeyError(f"Key {key} not found in both state_dicts")
+    return result

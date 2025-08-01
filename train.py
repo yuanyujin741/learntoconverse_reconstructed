@@ -16,6 +16,7 @@
 #   5.设置种子嘛？？
 #   6.model的pth文件的加载没有测试。
 #   7.在config中添加测试说明。
+#   8.rollout_length的效果不知道怎么样子。可能没有效果，也就是没有传递到envs中，可能没有效果。
 # test done:
 #   1.对log的建立、保存、加载测试完成。继续训练的log加载测试完成。
 #   
@@ -50,5 +51,12 @@ elif config.continue_training:
     add_new_meta_data(log, config)
     if config.DBM:
         print(log)
+
+print(policy.state_dict())
 # 从头开始训练不需要额外处理就是了
 # 开始训练
+current_rollout_num = len(log['rollout_id']) # 适配了其他的问题哎
+while current_rollout_num < config.max_rollout_num:
+    # create epsilon table
+    epsilon_table = create_epsilon_table(config=config, policy=policy)
+    results = rollout_workers(epsilon_table=epsilon_table)

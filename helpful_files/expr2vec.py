@@ -1,7 +1,9 @@
 # 只有一个函数的实现，也就是expr2vec。实现了从表达式到向量的转换。
 # 这个是使用了cache的那个版本啊
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "5"  # 或 "6" 使用 GPU 6
+import sys
+# 如果再服务器上需要修改为使用5比较好。
+#os.environ["CUDA_VISIBLE_DEVICES"] = "5"  # 或 "6" 使用 GPU 6
 import numpy as np
 from sentence_transformers import SentenceTransformer
 import torch
@@ -35,7 +37,7 @@ def Expr2Vec(
     if ExprStrList is None:
         ExprStrList = ["Empty Expression"]
 
-    model_path = r"/home/yxd/yyj/learntoconverse-master/main/all-MiniLM-L12-v2-model"  # 替换为实际模型路径
+    model_path = r"../all-MiniLM-L12-v2-model"  # 替换为实际模型路径
     local_model = _MODEL if _MODEL is not None else load_model(model_path)
     # 批量编码，使用较大batch_size和低精度加速
     with torch.cuda.amp.autocast(enabled=torch.cuda.is_available(), dtype=torch.float16):

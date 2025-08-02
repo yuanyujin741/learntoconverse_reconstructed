@@ -34,7 +34,7 @@ from helpful_files.expr2vec import *
 #np.random.seed(42)
 
 # 全局变量导入
-RENDER = "selftest" # 是否在每次step和reset的时候渲染。
+RENDER = "non-selftest" # 是否在每次step和reset的时候渲染。
 episode = 0 # 全局变量继续保留，但是添加一个新的innerepisode变量，用于记录每个环境的episode的次数。
 point_num = 12 # sample per 1, at draw.
 GENERATE_SIZE = 30 # original: 30

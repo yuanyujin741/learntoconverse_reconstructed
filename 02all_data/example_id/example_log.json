@@ -1,0 +1,65 @@
+{
+    "results": [
+        [[0, [0.161408828237398, 0.6880211756548863], [6, 6]], [1, [0.161408828237398, 0.688021175654887], [6, 6]], [2, [0.161408828237398, 0.6880211756548862], [6, 6]], [3, [0.161408828237398, 0.688021175654887], [6, 6]], [4, [0.161408828237398, 0.6880211756548862], [6, 6]], [5, [0.161408828237398, 0.6880211756548863], [6, 6]], [6, [0.161408828237398, 0.6880211756548862], [6, 6]]],
+        [[0, [0.161408828237398, 0.6880211756548863], [6, 6]], [1, [0.161408828237398, 0.688021175654887], [6, 6]], [2, [0.161408828237398, 0.6880211756548862], [6, 6]], [3, [0.161408828237398, 0.688021175654887], [6, 6]], [4, [0.161408828237398, 0.6880211756548862], [6, 6]], [5, [0.161408828237398, 0.6880211756548863], [6, 6]], [6, [0.161408828237398, 0.6880211756548862], [6, 6]]]
+        ], 
+    "evaluate_average_rewards": [0.4247150019461421, 0.4247150019461421], 
+    "evaluate_each_rewards": [
+        [[0.161408828237398, 0.6880211756548862], [0.161408828237398, 0.6880211756548863], [0.161408828237398, 0.6880211756548862]],
+        [[0.161408828237398, 0.6880211756548862], [0.161408828237398, 0.6880211756548863], [0.161408828237398, 0.6880211756548862]]
+        ], 
+    "rollout_time": [35.157883167266846], 
+    "clocktime": [], 
+    "meta_data": [
+        {
+            "config": {
+                "DBM": true, 
+                "continue_training": false, 
+                "task_id": "003", 
+                "envs_NK": [[2, 2], [2, 3]], 
+                "use_pretrained_model": false, 
+                "pretrained_model_id": "None", 
+                "new_ineq_num_factor": 1, 
+                "log_dir": "02all_data/003", 
+                "num_worker": 2, 
+                "max_rollout_num": 1000, 
+                "n_directions": 4, 
+                "evaluate_time": 3, 
+                "learning_rate": 0.01, 
+                "gamma": 0.97, 
+                "std": 0.02, 
+                "rollout_length": 10, 
+                "network_param": {"hsize": 64, "numlayers": 2, "embed": 100, "numvars": 383}, 
+                "device": "cuda"
+            }, 
+            "start_time": "2025-08-02 19:13:35", 
+            "start_time_in_seconds": 1754133215.9783678, 
+            "end_time": null, 
+            "end_time_in_seconds": null},
+        {
+            "config": {
+                "DBM": true, 
+                "continue_training": false, 
+                "task_id": "003", 
+                "envs_NK": [[2, 2], [2, 3]], 
+                "use_pretrained_model": false, 
+                "pretrained_model_id": "None", 
+                "new_ineq_num_factor": 1, 
+                "log_dir": "02all_data/003", 
+                "num_worker": 2, 
+                "max_rollout_num": 1000, 
+                "n_directions": 4, 
+                "evaluate_time": 3, 
+                "learning_rate": 0.01, 
+                "gamma": 0.97, 
+                "std": 0.02, 
+                "rollout_length": 10, 
+                "network_param": {"hsize": 64, "numlayers": 2, "embed": 100, "numvars": 383}, 
+                "device": "cuda"
+            }, 
+            "start_time": "2025-08-02 19:13:35", 
+            "start_time_in_seconds": 1754133215.9783678, 
+            "end_time": null, 
+            "end_time_in_seconds": null}
+    ]
+    }

@@ -11,52 +11,82 @@
 # task:
 #   1.log——dir还没有建立
 #   2.converseenv对应的一些全局变量可能存在相互干扰的现象。首先先研究一下是否会干扰，其次需要修改为类的变量。
-#   3.修改render为"linux"和"windows"，对应的分别在linux和windows上面运行啊。
+#   3.修改render为"linux"和"windows"，对应的分别在linux和windows上面运行啊；不同的平台对于torch的要求也不太一样哩，就是expr2vecs的时候需要指定cuda的id。
 #   4.直接将numvars修改为ob_dim比较好，免去了来自原始的问题的联合的影响哎。现在没有修改，因为有点害怕改错了。
 #   5.设置种子嘛？？
 #   6.model的pth文件的加载没有测试。
 #   7.在config中添加测试说明。
 #   8.rollout_length的效果不知道怎么样子。可能没有效果，也就是没有传递到envs中，可能没有效果。
+#   9.实际使用之前需要确定一下expr2vec的可用性。
 # test done:
 #   1.对log的建立、保存、加载测试完成。继续训练的log加载测试完成。
 #   
 
-# 初始化config，也就是全部的配置。
-from utils import *
-config = Config(continue_training=False, DBM=True)
-config.set_policy_config()
-import torch
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-config.set_attention_network_config(device = device)
-print("device: ",device)
-if config.DBM:
-    config.print_config()
-# 建立envs：
-envs = make_converse_env(config)
-# 建立policy和optimizer：
-policy = AttentionPolicy(config.network_param, device = device)
-optimizer = torch.optim.Adam(policy.parameters(), lr = config.learning_rate)
-# 初始化存储对象
-log = create_new_log(config)
-
-# 从pretrained_model_id加载模型
-if config.use_pretrained_model:
-    policy.load_state_dict(torch.load(f"02all_data/{config.pretrained_model_id}/model.pth"))
-    optimizer.load_state_dict(torch.load(f"02all_data/{config.pretrained_model_id}/optimizer.pth"))
-# 继续训练
-elif config.continue_training:
-    policy.load_state_dict(torch.load(f"02all_data/{config.task_id}/model.pth"))
-    optimizer.load_state_dict(torch.load(f"02all_data/{config.task_id}/optimizer.pth"))
-    log = load_log(config)
-    add_new_meta_data(log, config)
+# 是的，这里是多进程保护哎：
+if __name__ == "__main__":
+    # 初始化config，也就是全部的配置。
+    from utils import *
+    config = Config(continue_training=False, DBM=True)
+    config.set_policy_config()
+    import torch
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    config.set_attention_network_config(device = device)
+    print("device: ",device)
     if config.DBM:
-        print(log)
+        config.print_config()
+    # 建立envs：
+    envs = make_converse_env(config)
+    # 建立policy和optimizer：
+    policy = AttentionPolicy(config.network_param, device = device)
+    optimizer = torch.optim.Adam(policy.parameters(), lr = config.learning_rate)
+    # 初始化存储对象
+    log = create_new_log(config)
 
-print(policy.state_dict())
-# 从头开始训练不需要额外处理就是了
-# 开始训练
-current_rollout_num = len(log['rollout_id']) # 适配了其他的问题哎
-while current_rollout_num < config.max_rollout_num:
-    # create epsilon table
-    epsilon_table = create_epsilon_table(config=config, policy=policy)
-    results = rollout_workers(epsilon_table=epsilon_table)
+    # 从pretrained_model_id加载模型
+    if config.use_pretrained_model:
+        policy.load_state_dict(torch.load(f"02all_data/{config.pretrained_model_id}/model.pth"))
+        optimizer.load_state_dict(torch.load(f"02all_data/{config.pretrained_model_id}/optimizer.pth"))
+    # 继续训练
+    elif config.continue_training:
+        policy.load_state_dict(torch.load(f"02all_data/{config.task_id}/model.pth"))
+        optimizer.load_state_dict(torch.load(f"02all_data/{config.task_id}/optimizer.pth"))
+        log = load_log(config)
+        add_new_meta_data(log, config)
+        if config.DBM:
+            print(log)
+
+
+    # 从头开始训练不需要额外处理就是了
+    # 开始训练
+    current_rollout_num = len(log['results']) # 适配了其他的问题哎
+    while current_rollout_num < config.max_rollout_num:
+        # 做不同epsilon的rollout
+        rollout_start_time = time.time()
+        epsilon_table = create_epsilon_table(config=config, policy=policy) # create epsilon table
+        results = rollout_workers(envs_s=envs, epsilon_table=epsilon_table, original_policy=policy, config=config)
+        # 保存处理的结果
+        save_results_2_log(results, log, config = config)
+        log["rollout_time"].append(time.time() - rollout_start_time)
+        print(log)
+        # 参数更新，修改为使用optimizer实现参数更新，而不是手动设置之类的。
+        grad = get_grad(epsilon_table, config, log)
+        optimizer.zero_grad()
+        for name, param in policy.named_parameters():
+            if name in grad:
+                param.grad = grad[name].to(param.device)
+            else:
+                print("warning! no grad for ", name)
+        optimizer.step()
+        log["clocktime"].append(time.time() - rollout_start_time)
+        # 模型保存以及log保存（注意环境的输出本来就是保存起来的）
+        save_log(config=config, log = log)
+        torch.save(policy.state_dict(), f"02all_data/{config.task_id}/model.pth")
+        torch.save(optimizer.state_dict(), f"02all_data/{config.task_id}/optimizer.pth")
+        if current_rollout_num % 50 == 0:
+            os.makedirs(f"02all_data/{config.task_id}/checkpoint", exist_ok=True)
+            torch.save(policy.state_dict(), f"02all_data/{config.task_id}/checkpoint/model_{current_rollout_num}.pth")
+            torch.save(optimizer.state_dict(), f"02all_data/{config.task_id}/checkpoint/optimizer_{current_rollout_num}.pth")
+        # 可视化处理
+        draw_rewards_20points(log, config)
+        draw_times(log, config)
+        current_rollout_num += 1

@@ -26,7 +26,7 @@
 if __name__ == "__main__":
     # 初始化config，也就是全部的配置。
     from utils import *
-    config = Config(continue_training=False, DBM=True)
+    config = Config(continue_training=True, DBM=True)
     config.set_policy_config()
     import torch
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -73,7 +73,7 @@ if __name__ == "__main__":
         optimizer.zero_grad()
         for name, param in policy.named_parameters():
             if name in grad:
-                param.grad = grad[name].to(param.device)
+                param.grad = - grad[name].to(param.device)
             else:
                 print("warning! no grad for ", name)
         optimizer.step()

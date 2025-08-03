@@ -1,0 +1,449 @@
+1
+['X12', 'X21', 'Z1']
+cutset_list ['X12', 'X21', 'Z1']
+ix_vars [['X21'], ['Z1']]
+iy_vars [['X12'], ['X12', 'X21']]
+hx_vars [['X12', 'X21', 'Z1']]
+hy_vars [['W1', 'W2']]
+2
+['X12', 'Z1', 'Z2']
+cutset_list ['X12', 'Z1', 'Z2']
+ix_vars [['X21'], ['Z1'], ['Z1'], ['Z2']]
+iy_vars [['X12'], ['X12', 'X21'], ['X12'], ['X12', 'Z1']]
+hx_vars [['X12', 'X21', 'Z1'], ['X12', 'Z1', 'Z2']]
+hy_vars [['W1', 'W2'], ['W1', 'W2']]
+9
+[['W1', 'W2'], ['X21'], ['X12'], ['Z1'], ['X12', 'X21'], ['W1', 'W2'], ['Z2'], ['X12', 'Z1'], ['W1', 'W2']]
+len of vars 9
+len of expand vars 13
+symmetrize
+symmetrize time:0.00099945068359375
+number of varibles 9
+Xrvs_cons ['X12']
+Wrvs_cons ['W1,W2']
+I(X21;X12)
+I(Z1;X12,X21)
+I(Z1;X12)
+I(Z2;X12,Z1)
+H(X12,X21,Z1|W1,W2)
+H(X12,Z1,Z2|W1,W2)
+2H({X12}) - H({X12,X21}) >= 0
+H({Z1}) + H({X12,X21}) - H({W1,W2}) >= 0
+H({X12}) + H({Z1}) - H({X12,Z1}) >= 0
+H({Z1}) + H({X12,Z1}) - H({W1,W2}) >= 0
+num of exprs 4
+Set parameter Username
+Set parameter LicenseID to value 2626985
+Academic license - for non-commercial use only - expires 2026-02-24
+oriall vars 0
+1.更新regions、vars
+number of effective exprs: 4
+len of effecitve vars 5
+{'Z1': 3, 'X12': 2, 'X12,X21': 2, 'W1,W2': 2, 'X12,Z1': 2}
+2.生成新vars
+3.对vars进行封闭集和对称性处理，生成entropydict
+before symmetrize num of expanded vars: 55
+all_before 5
+-----------symmetrize time 0.0009849071502685547 -----------
+after symmetreize num of expanded vars: 21
+all_after 21
+4.问题约束
+5.生成不等式集，并合并相同不等式
+4
+e:\pycharm\python_doc\learntoconverse_reconstructed\helpful_files\expr2vec.py:43: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=torch.cuda.is_available(), dtype=torch.float16):
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  3.25it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  3.25it/s]
+34
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 55.58it/s]
+**** regions_matrix: (4, 384), regions_candidate_matrix: (34, 384)
+entropydict_all.max_index()+1+3: 24
+6.生成不等式矩阵
+shape of ine_constraints (26, 14)
+-------------Lp time:  0.0010004043579101562 -------------
+solve time 0.044001102447509766
+oriall vars 9
+1.更新regions、vars
+number of effective exprs: 8
+len of effecitve vars 7
+{'X12,Z1': 5, 'Z1': 4, 'W1,W2': 4, 'W1,Z1': 4, 'W1,Z1,Z2': 3, 'X12': 2, 'W1': 1}
+2.生成新vars
+3.对vars进行封闭集和对称性处理，生成entropydict
+before symmetrize num of expanded vars: 49
+all_before 16
+-----------symmetrize time 0.0010001659393310547 -----------
+after symmetreize num of expanded vars: 11
+all_after 16
+4.问题约束
+5.生成不等式集，并合并相同不等式
+7
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 58.83it/s]
+31
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 55.56it/s]
+**** regions_matrix: (7, 384), regions_candidate_matrix: (31, 384)
+entropydict_all.max_index()+1+3: 24
+rewardlist: [0.161408828237398]
+recent reward: [0.161408828237398]
+recent reward: [0.1614]
+select action: [27, 21, 6, 13, 10, 33, 24, 28, 9, 32, 22, 23, 2, 4, 0, 20, 25]  from len of  31
+6.生成不等式矩阵
+shape of ine_constraints (23, 14)
+-------------Lp time:  0.0 -------------
+solve time 0.04707002639770508
+oriall vars 28
+1.更新regions、vars
+number of effective exprs: 7
+len of effecitve vars 7
+{'X12,Z1': 4, 'W1,W2': 4, 'W1,Z1': 4, 'Z1': 3, 'W1,Z1,Z2': 3, 'X12': 1, 'W1': 1}
+2.生成新vars
+3.对vars进行封闭集和对称性处理，生成entropydict
+before symmetrize num of expanded vars: 49
+all_before 16
+-----------symmetrize time 0.0 -----------
+after symmetreize num of expanded vars: 10
+all_after 16
+4.问题约束
+5.生成不等式集，并合并相同不等式
+7
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 43.78it/s]
+30
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 33.43it/s]
+**** regions_matrix: (7, 384), regions_candidate_matrix: (30, 384)
+entropydict_all.max_index()+1+3: 24
+rewardlist: [0.161408828237398, 0.0]
+recent reward: [0.161408828237398, 0.0]
+recent reward: [0.1614, 0.0]
+select action: [8, 17, 4, 1, 3, 30, 16, 9, 2, 28, 14, 15, 22, 23, 13]  from len of  30
+6.生成不等式矩阵
+shape of ine_constraints (23, 13)
+-------------Lp time:  0.0010006427764892578 -------------
+solve time 0.05728769302368164
+oriall vars 50
+1.更新regions、vars
+number of effective exprs: 7
+len of effecitve vars 7
+{'X12,Z1': 4, 'W1,W2': 4, 'W1,Z1': 4, 'Z1': 3, 'W1,Z1,Z2': 3, 'X12': 1, 'W1': 1}
+2.生成新vars
+3.对vars进行封闭集和对称性处理，生成entropydict
+before symmetrize num of expanded vars: 55
+all_before 16
+-----------symmetrize time 0.0009298324584960938 -----------
+after symmetreize num of expanded vars: 11
+all_after 17
+4.问题约束
+5.生成不等式集，并合并相同不等式
+7
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 58.83it/s]
+30
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 62.50it/s]
+**** regions_matrix: (7, 384), regions_candidate_matrix: (30, 384)
+entropydict_all.max_index()+1+3: 25
+rewardlist: [0.161408828237398, 0.0, 0.0]
+recent reward: [0.161408828237398, 0.0, 0.0]
+recent reward: [0.1614, 0.0, 0.0]
+select action: [28, 14, 4, 3, 1, 18, 12, 29, 2, 16, 11, 13, 25, 23, 10]  from len of  30
+6.生成不等式矩阵
+shape of ine_constraints (23, 13)
+-------------Lp time:  0.0010001659393310547 -------------
+solve time 0.05071568489074707
+oriall vars 71
+1.更新regions、vars
+number of effective exprs: 7
+len of effecitve vars 7
+{'X12,Z1': 4, 'W1,W2': 4, 'W1,Z1': 4, 'Z1': 3, 'W1,Z1,Z2': 3, 'X12': 1, 'W1': 1}
+2.生成新vars
+3.对vars进行封闭集和对称性处理，生成entropydict
+before symmetrize num of expanded vars: 49
+all_before 17
+-----------symmetrize time 0.0009996891021728516 -----------
+after symmetreize num of expanded vars: 10
+all_after 18
+4.问题约束
+5.生成不等式集，并合并相同不等式
+7
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 62.50it/s]
+29
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 55.56it/s]
+**** regions_matrix: (7, 384), regions_candidate_matrix: (29, 384)
+entropydict_all.max_index()+1+3: 25
+rewardlist: [0.161408828237398, 0.0, 0.0, 0.0]
+recent reward: [0.161408828237398, 0.0, 0.0, 0.0]
+recent reward: [0.1614, 0.0, 0.0, 0.0]
+select action: [22, 3, 10, 16, 18, 28, 1, 23, 17, 26, 6, 7, 11, 14, 4]  from len of  29
+6.生成不等式矩阵
+shape of ine_constraints (23, 12)
+-------------Lp time:  0.0010004043579101562 -------------
+solve time 0.04812264442443848
+oriall vars 97
+1.更新regions、vars
+number of effective exprs: 7
+len of effecitve vars 7
+{'X12,Z1': 4, 'W1,W2': 4, 'W1,Z1': 4, 'Z1': 3, 'W1,Z1,Z2': 3, 'X12': 1, 'W1': 1}
+2.生成新vars
+3.对vars进行封闭集和对称性处理，生成entropydict
+before symmetrize num of expanded vars: 33
+all_before 17
+-----------symmetrize time 0.0 -----------
+after symmetreize num of expanded vars: 9
+all_after 17
+4.问题约束
+5.生成不等式集，并合并相同不等式
+7
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 55.39it/s]
+29
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 35.61it/s]
+**** regions_matrix: (7, 384), regions_candidate_matrix: (29, 384)
+entropydict_all.max_index()+1+3: 25
+rewardlist: [0.161408828237398, 0.0, 0.0, 0.0, 0.0]
+recent reward: [0.161408828237398, 0.0, 0.0, 0.0, 0.0]
+recent reward: [0.1614, 0.0, 0.0, 0.0, 0.0]
+select action: [16, 3, 12, 9, 13, 22, 1, 17, 11, 20, 6, 7, 25, 26]  from len of  29
+6.生成不等式矩阵
+shape of ine_constraints (23, 12)
+-------------Lp time:  0.001001119613647461 -------------
+solve time 0.05112576484680176
+oriall vars 117
+1.更新regions、vars
+number of effective exprs: 7
+len of effecitve vars 7
+{'X12,Z1': 4, 'W1,W2': 4, 'W1,Z1': 4, 'Z1': 3, 'W1,Z1,Z2': 3, 'X12': 1, 'W1': 1}
+2.生成新vars
+3.对vars进行封闭集和对称性处理，生成entropydict
+before symmetrize num of expanded vars: 33
+all_before 17
+-----------symmetrize time 0.0 -----------
+after symmetreize num of expanded vars: 9
+all_after 17
+4.问题约束
+5.生成不等式集，并合并相同不等式
+7
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 52.59it/s]
+29
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 54.50it/s]
+**** regions_matrix: (7, 384), regions_candidate_matrix: (29, 384)
+entropydict_all.max_index()+1+3: 25
+rewardlist: [0.161408828237398, 0.0, 0.0, 0.0, 0.0, 0.0]
+recent reward: [0.0, 0.0, 0.0, 0.0, 0.0]
+recent reward: [0.0, 0.0, 0.0, 0.0, 0.0]
+select action: [27, 22, 5, 3, 1, 9, 23, 28, 2, 7, 21, 24, 13, 14]  from len of  29
+1
+['X121', 'X212', 'Z1']
+cutset_list ['X121', 'X212', 'Z1']
+ix_vars [['X212'], ['Z1']]
+iy_vars [['X121'], ['X121', 'X212']]
+hx_vars [['X121', 'X212', 'Z1']]
+hy_vars [['W1', 'W2']]
+2
+['X121', 'Z1', 'Z2']
+cutset_list ['X121', 'Z1', 'Z2']
+ix_vars [['X212'], ['Z1'], ['Z1'], ['Z2']]
+iy_vars [['X121'], ['X121', 'X212'], ['X121'], ['X121', 'Z1']]
+hx_vars [['X121', 'X212', 'Z1'], ['X121', 'Z1', 'Z2']]
+hy_vars [['W1', 'W2'], ['W1', 'W2']]
+9
+[['W1', 'W2'], ['X212'], ['X121'], ['Z1'], ['X121', 'X212'], ['W1', 'W2'], ['Z2'], ['X121', 'Z1'], ['W1', 'W2']]
+len of vars 9
+len of expand vars 13
+symmetrize
+symmetrize time:0.001997709274291992
+number of varibles 9
+Xrvs_cons ['X112']
+Wrvs_cons ['W1,W2']
+I(X212;X121)
+I(Z1;X121,X212)
+I(Z1;X121)
+I(Z2;X121,Z1)
+H(X121,X212,Z1|W1,W2)
+H(X121,Z1,Z2|W1,W2)
+2H({X112}) - H({X112,X221}) >= 0
+H({Z1}) + H({X112,X221}) - H({W1,W2}) >= 0
+H({X112}) + H({Z1}) - H({X112,Z1}) >= 0
+H({Z1}) + H({X112,Z1}) - H({W1,W2}) >= 0
+num of exprs 4
+oriall vars 0
+1.更新regions、vars
+number of effective exprs: 4
+len of effecitve vars 5
+{'Z1': 3, 'X112': 2, 'X112,X221': 2, 'W1,W2': 2, 'X112,Z1': 2}
+2.生成新vars
+3.对vars进行封闭集和对称性处理，生成entropydict
+before symmetrize num of expanded vars: 132
+all_before 5
+-----------symmetrize time 0.008998870849609375 -----------
+after symmetreize num of expanded vars: 50
+all_after 50
+4.问题约束
+5.生成不等式集，并合并相同不等式
+4
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 66.68it/s]
+79
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 27.79it/s]
+**** regions_matrix: (4, 384), regions_candidate_matrix: (79, 384)
+entropydict_all.max_index()+1+3: 52
+6.生成不等式矩阵
+shape of ine_constraints (48, 26)
+-------------Lp time:  0.002000093460083008 -------------
+solve time 0.09995532035827637
+oriall vars 9
+1.更新regions、vars
+number of effective exprs: 8
+len of effecitve vars 8
+{'X112,Z1': 5, 'Z1': 4, 'X112': 3, 'W1,W2': 3, 'W1,Z1': 3, 'X112,X221': 2, 'W1,Z1,Z2': 2, 'W1': 1}
+2.生成新vars
+3.对vars进行封闭集和对称性处理，生成entropydict
+before symmetrize num of expanded vars: 110
+all_before 41
+-----------symmetrize time 0.0019998550415039062 -----------
+after symmetreize num of expanded vars: 21
+all_after 44
+4.问题约束
+5.生成不等式集，并合并相同不等式
+7
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 55.55it/s]
+70
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 30.30it/s]
+**** regions_matrix: (7, 384), regions_candidate_matrix: (70, 384)
+entropydict_all.max_index()+1+3: 55
+rewardlist: [0.16140882823739888]
+recent reward: [0.16140882823739888]
+recent reward: [0.1614]
+select action: [28, 33, 50, 11, 42, 24, 8, 20, 34, 23, 22, 41, 9, 18, 14, 30, 17, 39, 7, 75, 13, 51, 10, 12, 55, 69, 52, 25, 67, 53, 26, 72, 66, 65, 45, 6, 32, 38, 3]  from len of  70
+6.生成不等式矩阵
+shape of ine_constraints (46, 21)
+-------------Lp time:  0.002006053924560547 -------------
+solve time 0.11898565292358398
+oriall vars 39
+1.更新regions、vars
+number of effective exprs: 8
+len of effecitve vars 9
+{'Z1': 4, 'X112': 3, 'W1,W2': 3, 'X112,Z1': 3, 'W1,Z1': 3, 'X112,X221': 2, 'W1,Z1,Z2': 2, 'X112,Z3': 2, 'W1': 1}
+2.生成新vars
+3.对vars进行封闭集和对称性处理，生成entropydict
+before symmetrize num of expanded vars: 120
+all_before 44
+-----------symmetrize time 0.004477024078369141 -----------
+after symmetreize num of expanded vars: 23
+all_after 50
+4.问题约束
+5.生成不等式集，并合并相同不等式
+8
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 58.49it/s]
+66
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 33.33it/s]
+**** regions_matrix: (8, 384), regions_candidate_matrix: (66, 384)
+entropydict_all.max_index()+1+3: 61
+rewardlist: [0.16140882823739888, -8.881784197001252e-16]
+recent reward: [0.16140882823739888, -8.881784197001252e-16]
+recent reward: [0.1614, -0.0]
+select action: [17, 20, 56, 49, 5, 13, 42, 14, 23, 10, 12, 43, 4, 9, 47, 18, 8, 3, 34, 48, 30, 46, 57, 41, 45, 52, 28, 53, 11, 26, 58, 15, 29, 65, 66]  from len of  66
+6.生成不等式矩阵
+shape of ine_constraints (45, 20)
+-------------Lp time:  0.0020029544830322266 -------------
+solve time 0.10324740409851074
+oriall vars 69
+1.更新regions、vars
+number of effective exprs: 7
+len of effecitve vars 8
+{'Z1': 4, 'W1,Z1': 4, 'X112,Z1': 3, 'W1,W2': 3, 'X112': 2, 'W1,Z1,Z2': 2, 'X112,Z3': 2, 'W1': 1}
+2.生成新vars
+3.对vars进行封闭集和对称性处理，生成entropydict
+before symmetrize num of expanded vars: 113
+all_before 50
+-----------symmetrize time 0.0019998550415039062 -----------
+after symmetreize num of expanded vars: 20
+all_after 54
+4.问题约束
+5.生成不等式集，并合并相同不等式
+7
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 62.51it/s]
+67
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 32.26it/s]
+**** regions_matrix: (7, 384), regions_candidate_matrix: (67, 384)
+entropydict_all.max_index()+1+3: 64
+rewardlist: [0.16140882823739888, -8.881784197001252e-16, 0.0]
+recent reward: [0.16140882823739888, -8.881784197001252e-16, 0.0]
+recent reward: [0.1614, -0.0, 0.0]
+select action: [50, 53, 36, 12, 20, 7, 21, 52, 19, 16, 6, 44, 17, 10, 51, 15, 43, 65, 8, 62, 11, 32, 5, 9, 34, 60, 31, 38, 58, 35, 48, 61, 25]  from len of  67
+6.生成不等式矩阵
+shape of ine_constraints (42, 19)
+-------------Lp time:  0.002000570297241211 -------------
+solve time 0.09109878540039062
+oriall vars 99
+1.更新regions、vars
+number of effective exprs: 9
+len of effecitve vars 9
+{'X112,Z1': 5, 'W1,Z1': 5, 'Z1': 4, 'W1,Z1,Z2': 4, 'W1,W2': 3, 'X112': 2, 'X112,Z1,Z2': 2, 'X112,Z3': 2, 'W1': 1}
+2.生成新vars
+3.对vars进行封闭集和对称性处理，生成entropydict
+before symmetrize num of expanded vars: 66
+all_before 51
+-----------symmetrize time 0.0009999275207519531 -----------
+after symmetreize num of expanded vars: 14
+all_after 51
+4.问题约束
+5.生成不等式集，并合并相同不等式
+9
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 58.84it/s]
+60
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 34.48it/s]
+**** regions_matrix: (9, 384), regions_candidate_matrix: (60, 384)
+entropydict_all.max_index()+1+3: 64
+rewardlist: [0.16140882823739888, -8.881784197001252e-16, 0.0, 0.0]
+recent reward: [0.16140882823739888, -8.881784197001252e-16, 0.0, 0.0]
+recent reward: [0.1614, -0.0, 0.0, 0.0]
+select action: [27, 22, 40, 48, 66, 8, 45, 5, 24, 20, 3, 43, 64, 1, 50, 25, 2, 62, 47, 16, 12, 51, 37, 58, 38, 10, 36, 23, 9, 52, 46, 11, 57]  from len of  60
+6.生成不等式矩阵
+shape of ine_constraints (42, 17)
+-------------Lp time:  0.002000093460083008 -------------
+solve time 0.08433151245117188
+oriall vars 130
+1.更新regions、vars
+number of effective exprs: 7
+len of effecitve vars 8
+{'Z1': 4, 'X112,Z1': 4, 'W1,Z1': 4, 'W1,W2': 3, 'X112': 2, 'W1,Z1,Z2': 2, 'X112,Z3': 2, 'W1': 1}
+2.生成新vars
+3.对vars进行封闭集和对称性处理，生成entropydict
+before symmetrize num of expanded vars: 66
+all_before 51
+-----------symmetrize time 0.0 -----------
+after symmetreize num of expanded vars: 14
+all_after 51
+4.问题约束
+5.生成不等式集，并合并相同不等式
+7
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 52.63it/s]
+58
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 33.33it/s]
+**** regions_matrix: (7, 384), regions_candidate_matrix: (58, 384)
+entropydict_all.max_index()+1+3: 64
+rewardlist: [0.16140882823739888, -8.881784197001252e-16, 0.0, 0.0, 0.0]
+recent reward: [0.16140882823739888, -8.881784197001252e-16, 0.0, 0.0, 0.0]
+recent reward: [0.1614, -0.0, 0.0, 0.0, 0.0]
+select action: [22, 26, 36, 18, 59, 6, 16, 8, 28, 4, 1, 58, 15, 5, 19, 23, 3, 56, 17, 48, 46, 20, 33, 13, 14, 30, 44, 31, 2, 43]  from len of  58
+6.生成不等式矩阵
+shape of ine_constraints (40, 17)
+-------------Lp time:  0.0019989013671875 -------------
+solve time 0.0731050968170166
+oriall vars 159
+1.更新regions、vars
+number of effective exprs: 7
+len of effecitve vars 7
+{'X112,Z1': 4, 'W1,W2': 4, 'W1,Z1': 4, 'Z1': 3, 'W1,Z1,Z2': 3, 'X112': 1, 'W1': 1}
+2.生成新vars
+3.对vars进行封闭集和对称性处理，生成entropydict
+before symmetrize num of expanded vars: 66
+all_before 51
+-----------symmetrize time 0.0 -----------
+after symmetreize num of expanded vars: 14
+all_after 51
+4.问题约束
+5.生成不等式集，并合并相同不等式
+7
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 54.10it/s]
+58
+Batches:   0%|                                                                                                                                                                                        | 0/1 [00:00<?, ?it/s]Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 34.49it/s]
+**** regions_matrix: (7, 384), regions_candidate_matrix: (58, 384)
+entropydict_all.max_index()+1+3: 64
+rewardlist: [0.16140882823739888, -8.881784197001252e-16, 0.0, 0.0, 0.0, 0.0]
+recent reward: [-8.881784197001252e-16, 0.0, 0.0, 0.0, 0.0]
+recent reward: [-0.0, 0.0, 0.0, 0.0, 0.0]
+select action: [1, 5, 20, 29, 57, 14, 25, 11, 3, 10, 7, 56, 23, 12, 28, 2, 9, 54, 27, 47, 45, 30, 18, 39, 40, 19, 43, 17, 4]  from len of  58

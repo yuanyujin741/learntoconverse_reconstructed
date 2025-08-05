@@ -699,7 +699,10 @@ class Iutils:
         return slopes   
     
     @staticmethod
-    def plot_cutset_bound(N,K,point_num):
+    def plot_cutset_bound(N,K,point_num,not_plot = False):
+        """"
+        新添加not_plot函数，同时实现return.
+        """
         M = np.linspace(0,N,point_num*N+1)
         R = []
         for s in range(1,min(N,K)+1):
@@ -716,17 +719,19 @@ class Iutils:
             if result_slope[i-1] != result_slope[i]:
                 point_x.append(M[i])
                 point_y.append(R_cutset[i])
-        plt.scatter(point_x,point_y,color='blue')
+        if not not_plot:
+            plt.scatter(point_x,point_y,color='blue')
 
-        # for xi, yi in zip(point_x, point_y):
-        #     label = f"({round(xi,3)}, {round(yi,3)})"
-        #     plt.annotate(label,  
-        #                 (xi, yi),  
-        #                 textcoords="offset points",  
-        #                 xytext=(-40, -5),  
-        #                 ha='center',
-        #                 color="blue") 
-        plt.plot(M,R_cutset,color='blue', linestyle=':', linewidth=2, label='cut-set bound')
+            # for xi, yi in zip(point_x, point_y):
+            #     label = f"({round(xi,3)}, {round(yi,3)})"
+            #     plt.annotate(label,  
+            #                 (xi, yi),  
+            #                 textcoords="offset points",  
+            #                 xytext=(-40, -5),  
+            #                 ha='center',
+            #                 color="blue") 
+            plt.plot(M,R_cutset,color='blue', linestyle=':', linewidth=2, label='cut-set bound')
+        return (M,R_cutset)
 
 
     @staticmethod

@@ -18,9 +18,12 @@ from multiprocessing import Pool
 import sys
 import matplotlib.pyplot as plt
 import matplotlib
+from helpful_files.pentropy_v3 import Iutils
+from converseenv import calculate_square
+from typing import Literal
 
 class Config():
-    def __init__(self, DBM = True, continue_training = False, envs_NK=[[2,2],[2,3]], use_pretrained_model=False, pretrained_model_id = None, new_ineq_num_factor = 0.5, num_worker = 1):
+    def __init__(self, DBM = True, continue_training = False, envs_NK=[[2,2],[2,3]], use_pretrained_model=False, pretrained_model_id = None, new_ineq_num_factor = 0.5, num_worker = 1, rewardtype:Literal["innerbound_ratio", "original"] = "original"):
         self.DBM = DBM
         self.continue_training = continue_training
         self.set_task_id() # 基于是否继续训练设置一个合理的id
@@ -32,6 +35,8 @@ class Config():
         self.new_ineq_num_factor = new_ineq_num_factor
         self.log_dir = f"02all_data/{self.task_id}"
         self.num_worker = num_worker
+        self.rewardtype = rewardtype
+        self.set_innerbound_reward() # 直接根据envs_NK设置内边界对应的奖励。记得在reward处进行奖励的更新。
         self.about_training = """ try another way of training, as is: use the CurrentReward InnerboundReward Ratio to train the policy. 
         Training start from 006 to train 007 as Ratio Reward. And 006 is partly trained on linux server at the last few epoches. """
 
@@ -84,6 +89,16 @@ class Config():
         self.network_param["numvars"] = 384-1 # obdim - 1
         #self.network_param['rowembed'] = 200
         self.device = device
+
+    def set_innerbound_reward(self):
+        """
+        直接根据envs_NK设置内边界对应的奖励。
+        """
+        self.innerbound_reward = {}
+        for env_NK in self.envs_NK:
+            innerbound = Iutils.plot_inner_bound(env_NK[0],env_NK[1],not_plot=True)
+            cutsetbound = Iutils.plot_cutset_bound(env_NK[0],env_NK[1],point_num=12,not_plot=True)
+            self.innerbound_reward[f"[{env_NK[0]},{env_NK[1]}]"] = np.exp(calculate_square(list(zip(innerbound[0],innerbound[1])))) - np.exp(calculate_square(list(zip(cutsetbound[0],cutsetbound[1]))))
 
 def set_seed(args):
     """
@@ -420,13 +435,13 @@ def rollout_envs(envs:list[ConverseEnvWrapper], policy:AttentionPolicy, config:C
         rewards = []
         times = []
         for i, env in enumerate(envs):
-            r, t = rollout(env= env, policy=policy, rollout_length=config.rollout_length, gamma=config.gamma, NumFactor=config.new_ineq_num_factor)
+            r, t = rollout(env= env, policy=policy, rollout_length=config.rollout_length, gamma=config.gamma, NumFactor=config.new_ineq_num_factor,config = config)
             rewards.append(r)
             times.append(t)
 
     return epsilon_id, rewards, times
 
-def rollout(env, policy, rollout_length, gamma, NumFactor):
+def rollout(env:ConverseEnvWrapper, policy, rollout_length, gamma, NumFactor,config:Config):
     """
     删掉num_rollouts，因为都是只做一次rollout就好了。针对的是一个环境进行rollout哎。
     修改删除act，直接使用policy处理ob等的。
@@ -450,6 +465,8 @@ def rollout(env, policy, rollout_length, gamma, NumFactor):
         print("select action:",action, " from len of ",len(ob[-1])) 
     #rewards.append(rsum)
     #times.append(t)
+    if config.rewardtype == "innerbound_ratio":
+        rsum = rsum / config.innerbound_reward[f"[{env.N},{env.K}]"]
     return rsum,t # 每个环境的返回值从[]重塑为float
 
 def add_state_dict(state_dict1, state_dict2,device):

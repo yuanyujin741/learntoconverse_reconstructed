@@ -26,7 +26,7 @@
 if __name__ == "__main__":
     # 初始化config，也就是全部的配置。
     from utils import *
-    config = Config(continue_training=True, use_pretrained_model=False, pretrained_model_id="003", envs_NK=[[2,2],[2,3],[3,2],[3,3],[2,4],[4,2],[4,3],[4,4]],new_ineq_num_factor=0.3,num_worker=1, DBM=True)# 确实我自己是有点担心电脑会炸掉，一直这么高强度训练的话。
+    config = Config(continue_training=False, use_pretrained_model=True, pretrained_model_id="006", envs_NK=[[2,2],[2,3],[3,2],[3,3],[2,4],[4,2],[4,3],[4,4]],new_ineq_num_factor=0.3,num_worker=1, DBM=True, rewardtype = "innerbound_ratio")# 确实我自己是有点担心电脑会炸掉，一直这么高强度训练的话。
     config.set_policy_config()
     import torch
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

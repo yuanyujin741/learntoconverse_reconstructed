@@ -32,7 +32,8 @@ class Config():
         self.new_ineq_num_factor = new_ineq_num_factor
         self.log_dir = f"02all_data/{self.task_id}"
         self.num_worker = num_worker
-        self.about_training = """from len(list_) is 45, restarting training to use gpu in gurobi"""
+        self.about_training = """ try another way of training, as is: use the CurrentReward InnerboundReward Ratio to train the policy. 
+        Training start from 006 to train 007 as Ratio Reward. And 006 is partly trained on linux server at the last few epoches. """
 
     def set_task_id(self):
         # 设置数据目录路径（根据实际情况调整）

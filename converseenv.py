@@ -50,6 +50,7 @@ globalK = 5
 total_time = 0.0
 total_exprs = 0
 
+# region Functions
 # 需要用到的函数
 def gurobi_solver(ent_num, ine_constraints, regions,ori_obj_coef,effective_idx_gurobi):
     try:
@@ -538,6 +539,7 @@ def Regions2VecMatrix(regions):
     total_exprs += len(RegionStrList)
     return np.array(VecMatrixList)
 
+# region ConverseEnv
 class ConverseEnv():
     """
     默认NK=33的环境。
@@ -588,7 +590,7 @@ class ConverseEnv():
         # self.Wkey = []
         # self.oriall_vars = []
         self.pic_storage_path = "~/yyj/save/"
-    def render(self,namestring = ""):
+    def render(self,namestring = "", save_dir = None):
 
         #pdb.set_trace()
         plt.rcParams.update({'font.size': 8})  # 减小字体大小
@@ -633,11 +635,12 @@ class ConverseEnv():
         plt.ylabel("R")
         plt.legend()
         plt.title("Case(N,K)=({},{}),episode{}\nX_type={}\nvars:{},cons:{}".format(N,K,episode,X_combinations,len(vars),ine_constraints.shape))
-        save_dir = os.path.join(os.path.expanduser(self.pic_storage_path),"N,K={}{}".format(N,K))#
+        if save_dir == None:
+            save_dir = os.path.join(os.path.expanduser(self.pic_storage_path),"N,K={}{}".format(N,K))#
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
         try:
-            plt.savefig('{}/{},N={},K={}.png'.format(save_dir,namestring,N,K))
+            plt.savefig('{}/{}.png'.format(save_dir,namestring))
         except:
             print("savefig error")
             print(f"result: {point_x},{point_y}")

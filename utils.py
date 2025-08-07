@@ -10,10 +10,12 @@ import torch.nn.functional as F
 import random
 import os
 import time
+import datetime
 import copy
 import pdb
 from collections import defaultdict
 import json
+import multiprocessing
 from multiprocessing import Pool
 import sys
 import matplotlib.pyplot as plt
@@ -23,7 +25,8 @@ from converseenv import calculate_square
 from typing import Literal
 
 class Config():
-    def __init__(self, DBM = True, continue_training = False, envs_NK=[[2,2],[2,3]], use_pretrained_model=False, pretrained_model_id = None, new_ineq_num_factor = 0.5, num_worker = 1, rewardtype:Literal["innerbound_ratio", "original"] = "original"):
+    def __init__(self, DBM = True, continue_training = False, envs_NK=[[2,2],[2,3]], use_pretrained_model=False, pretrained_model_id = None, new_ineq_num_factor = 0.5, num_worker = 1, rewardtype:Literal["innerbound_ratio", "original"] = "original", test_mode = False, test_task_id = "000", test_task_models = [], test_num = 3):
+
         self.DBM = DBM
         self.continue_training = continue_training
         self.set_task_id() # 基于是否继续训练设置一个合理的id
@@ -37,6 +40,11 @@ class Config():
         self.num_worker = num_worker
         self.rewardtype = rewardtype
         self.set_innerbound_reward() # 直接根据envs_NK设置内边界对应的奖励。记得在reward处进行奖励的更新。
+        self.test_mode = test_mode
+        assert (not (self.test_mode and self.use_pretrained_model)) and (not (self.test_mode and self.continue_training))
+        self.test_task_id = test_task_id
+        self.test_task_models = test_task_models
+        self.test_num = test_num
         self.about_training = """ try another way of training, as is: use the CurrentReward InnerboundReward Ratio to train the policy. 
         Training start from 006 to train 007 as Ratio Reward. And 006 is partly trained on linux server at the last few epoches. """
 
@@ -179,9 +187,11 @@ def save_results_2_log(results:list[tuple], log:dict, config:Config):
 # region envs
 from converseenv import ConverseEnv
 class ConverseEnvWrapper(ConverseEnv):
-    def __init__(self, N=3,K=3,RENDER = "dont_render",epsilon_id=0):
+    def __init__(self, N=3,K=3,RENDER = "dont_render",epsilon_id=0, FORTEST_model:int|str = "latest", test_number:int=0):
         super().__init__(N=N,K=K,RENDER=RENDER)
         self.epsilon_id = epsilon_id
+        self.FORTEST_model = FORTEST_model
+        self.test_number = test_number
         
 def make_same_epsilon_env(config,epsilon_id):
     envs = []
@@ -197,6 +207,26 @@ def make_converse_env(config:Config):
         envs.append(make_same_epsilon_env(config,epsilon_id))
     if config.DBM:
         print(f"total envs（N,K,epsilon_id）: {[[[env.N,env.K,env.epsilon_id] for env in env_s] for env_s in envs]}")
+    return envs
+
+def make_same_model_env(config:Config, model_id:int|str, test_number):
+    envs = []
+    for NK in config.envs_NK:
+        env = ConverseEnvWrapper(N = NK[0], K = NK[1], FORTEST_model=model_id,test_number=test_number)
+        envs.append(env)
+    return envs
+
+def make_test_env(config:Config):
+    """
+    思路大致是，对全部的结果进行测试。
+    全部的NK，生成一个list，具有相同的model；然后多个list，重复config.test_num次，同时使用不同的model，得到最后的结果唉。
+    """
+    envs = []
+    for model in config.test_task_models:
+        for test_number in range(config.test_num):
+            envs.append(make_same_model_env(config=config,model_id=model,test_number=test_number))
+    if config.DBM:
+        print("test envs are: ", [[(env.N, env.K, env.FORTEST_model) for env in env_s] for env_s in envs])
     return envs
 
 # region policy
@@ -367,6 +397,46 @@ def create_epsilon_table(config:Config,policy:AttentionPolicy):
     assert len(epsilon_table) == config.n_directions, "len(epsilon_table) != config.n_directions"
     return epsilon_table
 
+def rollout_test_workers(envs_s:list[list[ConverseEnvWrapper]], original_policy:AttentionPolicy,config:Config):
+    """
+    测试用的rollout函数。
+    尝试使用GPU在这里，因为，似乎以其他的方式解决了之前在训练时候的设备的问题。
+    """
+    num_task = config.test_num * len(config.test_task_models)
+    num_workers = config.num_worker
+    results = []
+    # try not put it to cpu, error occurred.
+    original_policy = original_policy.to("cpu")
+    original_policy.device = "cpu"
+    try:
+        with Pool(processes=num_workers) as pool:
+            try:
+                async_results = []
+                for i in range(num_task):
+                    policy = copy.deepcopy(original_policy)
+                    model_id = envs_s[i][0].FORTEST_model
+                    if type(model_id) == int:
+                        policy_path = f"02all_data/{config.test_task_id}/checkpoint/model_{model_id}.pth"
+                    elif type(model_id) == str:
+                        policy_path = f"02all_data/{config.test_task_id}/model.pth"
+                    policy.load_state_dict(torch.load(policy_path))
+                    async_results.append(
+                        pool.apply_async(rollout_envs, args=(
+                            envs_s[i],
+                            policy,
+                            config,
+                            model_id
+                        ))
+                    )
+                    results = [list(async_result.get()) for async_result in async_results]
+            except KeyboardInterrupt:
+                print("KeyboardInterrupt")
+                pool.terminate()
+                pool.join()
+                raise KeyboardInterrupt
+    except:
+        print("Error in multiprocessing")
+    return results
 
 def rollout_workers(envs_s:list,epsilon_table:list,original_policy:AttentionPolicy,config:Config):
     """
@@ -424,10 +494,16 @@ def rollout_envs(envs:list[ConverseEnvWrapper], policy:AttentionPolicy, config:C
     adding NEWINQ_NUM, modified by Yuan at 2025/5/18
     adding NEWINQ_NUMlist, modified by Yuan at 2025/5/27
     已经对输出进行了重定向。重定向的位置是：02all_data/{config.task_id}/rollout_output/{epsilon_id}.txt下面
+    :param:epsilon_id: epsilon_id when training; model_id when testing.
     """
-    assert envs[0].epsilon_id == epsilon_id, "envs[0].epsilon_id != epsilon_id"
-    os.makedirs(f"02all_data/{config.task_id}/rollout_output",exist_ok=True)
-    output_path = f"02all_data/{config.task_id}/rollout_output/{epsilon_id}.txt"
+    if config.test_mode:
+        assert envs[0].FORTEST_model == epsilon_id, "envs[0].FORTEST_model != epsilon_id"
+        os.makedirs(f"02all_data/{config.test_task_id}/test_results", exist_ok=True)
+        output_path = f"02all_data/{config.test_task_id}/test_results/{epsilon_id}.txt"
+    else:
+        assert envs[0].epsilon_id == epsilon_id, "envs[0].epsilon_id != epsilon_id"
+        os.makedirs(f"02all_data/{config.task_id}/rollout_output",exist_ok=True)
+        output_path = f"02all_data/{config.task_id}/rollout_output/{epsilon_id}.txt"
     with open(output_path,"w+",encoding="utf-8") as f:
         sys.stdout = f
         sys.stderr = f # tqdm默认输出
@@ -455,6 +531,9 @@ def rollout(env:ConverseEnvWrapper, policy, rollout_length, gamma, NumFactor,con
     t = 0
     rsum = 0
     while not done and t <= rollout_length:
+        if config.test_mode == True:
+            time_now = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S-%f")
+            env.render(namestring=f"env_N={env.N}_K={env.K}_model={env.FORTEST_model}_test={env.test_number}_step={t}_time={time_now}", save_dir = f"02all_data/{config.test_task_id}/test_pics")
         action = policy(ob,num=int(NumFactor*len(ob[-1])),n_value=env.N, k_value=env.K)
         #print(action)
         ob, r, done = env.step(action)
@@ -626,6 +705,24 @@ def draw_times(log:dict, config:Config):
     plt.grid(alpha = 0.2)
     plt.savefig(save_path)
     plt.close()
+
+def explain_test_results(results:list[list[int|list[list]]], config:Config):
+    """
+    test done.
+    :return: reward_results: row for different model; column for different envs
+    """
+    reward_results = []
+    for model_num, model_id in enumerate(config.test_task_models):
+        this_model_result = [results[i + model_num * config.test_num][1] for i in range(config.test_num)]
+        this_model_result = np.mean(np.array(this_model_result),axis = 0)
+        reward_results.append(this_model_result.tolist())
+    
+    format_str = " ".join(["{: <15}" for _ in range(len(config.envs_NK) + 1)])
+    print("tested task id: ", config.test_task_id)
+    print(format_str.format(*["model\\env_NK",*[str(NK) for NK in config.envs_NK]]))
+    for row,model_id in zip(reward_results,config.test_task_models):
+        print(format_str.format(*[model_id,*row]))
+    return reward_results
 
 # region MAIN
 if __name__ == "__main__":

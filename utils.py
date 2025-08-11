@@ -20,6 +20,7 @@ from multiprocessing import Pool
 import sys
 import matplotlib.pyplot as plt
 import matplotlib
+matplotlib.use('Agg') # 听说这个库可以助力实现并行运算；但是实际上一直用的都是matplotlib的agg哎。
 from helpful_files.pentropy_v3 import Iutils
 from converseenv import calculate_square
 from typing import Literal
@@ -428,7 +429,7 @@ def rollout_test_workers(envs_s:list[list[ConverseEnvWrapper]], original_policy:
                             model_id
                         ))
                     )
-                    results = [list(async_result.get()) for async_result in async_results]
+                results = [list(async_result.get()) for async_result in async_results]
             except KeyboardInterrupt:
                 print("KeyboardInterrupt")
                 pool.terminate()
@@ -499,7 +500,7 @@ def rollout_envs(envs:list[ConverseEnvWrapper], policy:AttentionPolicy, config:C
     if config.test_mode:
         assert envs[0].FORTEST_model == epsilon_id, "envs[0].FORTEST_model != epsilon_id"
         os.makedirs(f"02all_data/{config.test_task_id}/test_results", exist_ok=True)
-        output_path = f"02all_data/{config.test_task_id}/test_results/{epsilon_id}.txt"
+        output_path = f"02all_data/{config.test_task_id}/test_results/model={epsilon_id}_pid={os.getpid()}.txt"
     else:
         assert envs[0].epsilon_id == epsilon_id, "envs[0].epsilon_id != epsilon_id"
         os.makedirs(f"02all_data/{config.task_id}/rollout_output",exist_ok=True)
@@ -533,9 +534,11 @@ def rollout(env:ConverseEnvWrapper, policy, rollout_length, gamma, NumFactor,con
     while not done and t <= rollout_length:
         if config.test_mode == True:
             time_now = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S-%f")
-            env.render(namestring=f"env_N={env.N}_K={env.K}_model={env.FORTEST_model}_test={env.test_number}_step={t}_time={time_now}", save_dir = f"02all_data/{config.test_task_id}/test_pics")
+            total_reward = 0.0 if len(env.rewardlist) == 0 else sum(env.rewardlist)
+            env.render(namestring=f"env_N={env.N}_K={env.K}_model={env.FORTEST_model}_test={env.test_number}_step={t}_time={time_now}_totalreward={total_reward}", save_dir = f"02all_data/{config.test_task_id}/test_pics")
         action = policy(ob,num=int(NumFactor*len(ob[-1])),n_value=env.N, k_value=env.K)
         #print(action)
+        time.sleep(60)
         ob, r, done = env.step(action)
         #ob, r, done, _ = env.step(action)
         rsum += r * factor

@@ -26,7 +26,9 @@
 if __name__ == "__main__":
     # 初始化config，也就是全部的配置。
     from utils import *
-    config = Config(continue_training=True, use_pretrained_model=False, pretrained_model_id="003", envs_NK=[[2,2],[2,3],[3,2],[3,3],[2,4],[4,2],[4,3],[4,4]],new_ineq_num_factor=0.3,num_worker=1, DBM=True)# 确实我自己是有点担心电脑会炸掉，一直这么高强度训练的话。
+    multiprocessing.set_start_method('spawn')  # 关键修复。似乎也可以直接使用gpu进行模型训练了。
+    config = Config(continue_training=False, use_pretrained_model=False, pretrained_model_id="006", envs_NK=[[2,3]],new_ineq_num_factor=0.3,num_worker=2, DBM=True, rewardtype = "original",
+                    test_mode=True, test_task_id="006", test_task_models=[0, 50, 100, "latest"], test_num = 3)# 确实我自己是有点担心电脑会炸掉，一直这么高强度训练的话。,[3,2],[3,3],[2,4],[4,2],[4,3],[4,4]
     config.set_policy_config()
     import torch
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -55,38 +57,43 @@ if __name__ == "__main__":
         if config.DBM:
             print(log)
 
-
-    # 从头开始训练不需要额外处理就是了
-    # 开始训练
-    current_rollout_num = len(log['results']) # 适配了其他的问题哎
-    while current_rollout_num < config.max_rollout_num:
-        # 做不同epsilon的rollout
-        rollout_start_time = time.time()
-        epsilon_table = create_epsilon_table(config=config, policy=policy) # create epsilon table
-        results = rollout_workers(envs_s=envs, epsilon_table=epsilon_table, original_policy=policy, config=config)
-        # 保存处理的结果
-        save_results_2_log(results, log, config = config)
-        log["rollout_time"].append(time.time() - rollout_start_time)
-        print(log)
-        # 参数更新，修改为使用optimizer实现参数更新，而不是手动设置之类的。
-        grad = get_grad(epsilon_table, config, log)
-        optimizer.zero_grad()
-        for name, param in policy.named_parameters():
-            if name in grad:
-                param.grad = - grad[name].to(param.device)
-            else:
-                print("warning! no grad for ", name)
-        optimizer.step()
-        log["clocktime"].append(time.time() - rollout_start_time)
-        # 模型保存以及log保存（注意环境的输出本来就是保存起来的）
-        save_log(config=config, log = log)
-        torch.save(policy.state_dict(), f"02all_data/{config.task_id}/model.pth")
-        torch.save(optimizer.state_dict(), f"02all_data/{config.task_id}/optimizer.pth")
-        if current_rollout_num % 50 == 0:
-            os.makedirs(f"02all_data/{config.task_id}/checkpoint", exist_ok=True)
-            torch.save(policy.state_dict(), f"02all_data/{config.task_id}/checkpoint/model_{current_rollout_num}.pth")
-            torch.save(optimizer.state_dict(), f"02all_data/{config.task_id}/checkpoint/optimizer_{current_rollout_num}.pth")
-        # 可视化处理
-        draw_rewards_20points(log, config)
-        draw_times(log, config)
-        current_rollout_num += 1
+    if not config.test_mode: # 如果不是test_mode的话就这样做：
+        # 从头开始训练不需要额外处理就是了
+        # 开始训练
+        current_rollout_num = len(log['results']) # 适配了其他的问题哎
+        while current_rollout_num < config.max_rollout_num:
+            # 做不同epsilon的rollout
+            rollout_start_time = time.time()
+            epsilon_table = create_epsilon_table(config=config, policy=policy) # create epsilon table
+            results = rollout_workers(envs_s=envs, epsilon_table=epsilon_table, original_policy=policy, config=config)
+            # 保存处理的结果
+            save_results_2_log(results, log, config = config)
+            log["rollout_time"].append(time.time() - rollout_start_time)
+            print(log)
+            # 参数更新，修改为使用optimizer实现参数更新，而不是手动设置之类的。
+            grad = get_grad(epsilon_table, config, log)
+            optimizer.zero_grad()
+            for name, param in policy.named_parameters():
+                if name in grad:
+                    param.grad = - grad[name].to(param.device)
+                else:
+                    print("warning! no grad for ", name)
+            optimizer.step()
+            log["clocktime"].append(time.time() - rollout_start_time)
+            # 模型保存以及log保存（注意环境的输出本来就是保存起来的）
+            save_log(config=config, log = log)
+            torch.save(policy.state_dict(), f"02all_data/{config.task_id}/model.pth")
+            torch.save(optimizer.state_dict(), f"02all_data/{config.task_id}/optimizer.pth")
+            if current_rollout_num % 50 == 0:
+                os.makedirs(f"02all_data/{config.task_id}/checkpoint", exist_ok=True)
+                torch.save(policy.state_dict(), f"02all_data/{config.task_id}/checkpoint/model_{current_rollout_num}.pth")
+                torch.save(optimizer.state_dict(), f"02all_data/{config.task_id}/checkpoint/optimizer_{current_rollout_num}.pth")
+            # 可视化处理
+            draw_rewards_20points(log, config)
+            draw_times(log, config)
+            current_rollout_num += 1
+    else:
+        envs = make_test_env(config) # test done
+        results = rollout_test_workers(envs_s=envs,original_policy=policy,config=config)
+        explain_test_results(results=results, config=config)
+        print("TEST DONE")

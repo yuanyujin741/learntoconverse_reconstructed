@@ -485,6 +485,7 @@ class ConverseEnv():
 
         # 生成不等式集，并合并相同不等式
         # print("5.生成不等式集，并合并相同不等式")
+        regions_candidate = copy.deepcopy(regions)
         Iutils.generate_inequalities_combs(vars,entropydict,regions_candidate,combinations)
         # print("before reducing",len(regions.exprs))
         regions_candidate.reduce_redundant_expr()

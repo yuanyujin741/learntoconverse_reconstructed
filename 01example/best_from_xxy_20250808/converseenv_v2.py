@@ -37,7 +37,7 @@ class ConverseEnv():
         self.reward_list = []
         self.DoneThreashold = 5 # 连续五次reward为0就认为是done了
         self.DoneEpsilon = 1e-6
-        self.max_apisode_num = 10
+        self.max_episode_num = 10
     def reset(self,seed:int = None):
         """
         reset实现的是，重置环境；一直是到生成待选不等式为止。
@@ -177,7 +177,8 @@ class ConverseEnv():
         :regions_candidate：上次等待使用的边界。
         """
         # self thing
-        entropydict = copy.deepcopy(self.entropydict)
+        #entropydict = copy.deepcopy(self.entropydict)
+        entropydict = self.entropydict
         Xrvs_cons = self.Xrvs_cons
         Wrvs_cons = self.Wrvs_cons
         N = self.N
@@ -189,14 +190,18 @@ class ConverseEnv():
         generate_size = self.generate_size
         necessary_vars = self.necessary_vars
         Wkey = self.Wkey
-        entropydict_all = copy.deepcopy(self.entropydict_all)
+        #entropydict_all = copy.deepcopy(self.entropydict_all)
+        entropydict_all = self.entropydict_all
         vars = self.vars
         oriall_vars = self.oriall_vars
         effctive_vars_last = self.effctive_vars_last
 
         # recover from the candidate regions
-        regions_candidate = copy.deepcopy(self.regions_candidate)
-        regions = copy.deepcopy(self.regions)
+        #regions_candidate = copy.deepcopy(self.regions_candidate)
+        #regions = copy.deepcopy(self.regions)
+        regions_candidate = self.regions_candidate
+        regions = self.regions
+
         for i in range(len(action)):
             regions.append_expr(regions_candidate.exprs[action[i]])
         regions.reduce_redundant_expr()
@@ -305,7 +310,7 @@ class ConverseEnv():
 
         # ---- RENDER RECORDER ----
         self.plot_data_list.append(plot_data)
-        self.ine_constraints = copy.deepcopy(ine_constraints)
+        self.ine_constraints_shape = ine_constraints.shape
         self.render_vars = vars
 
         # new episode here
@@ -516,12 +521,21 @@ class ConverseEnv():
 
         # reward calculator
         if len(self.plot_data_list) == 1:
-            reward = np.exp(calculate_square(self.plot_data_list[-1])) - 0
+            reward = np.exp(calculate_square(self.plot_data_list[-1])) - np.exp(0)
         else:
             reward = np.exp(calculate_square(self.plot_data_list[-1])) - np.exp(calculate_square(self.plot_data_list[-2]))
         self.reward_list.append(reward)
         # done logic
-        done = (len(self.reward_list) >= self.DoneThreashold and np.average(self.reward_list[-self.DoneThreashold]) <= self.DoneEpsilon) or self.episode >= self.max_apisode_num
+        done = (len(self.reward_list) >= self.DoneThreashold and np.average(self.reward_list[-self.DoneThreashold:]) <= self.DoneEpsilon) or self.episode >= self.max_episode_num
+        #print(self.reward_list)
+        #print(len(self.reward_list))
+        #print(len(self.reward_list)>=self.DoneThreashold)
+        #print(np.average(self.reward_list[-self.DoneThreashold:]))
+        #print(self.DoneEpsilon)
+        #print(self.episode)
+        #print(self.max_episode_num)
+        #print(self.episode >= self.max_episode_num)
+        #print(done)
         return ob, reward, done
 
     def render(self,namestring:str|None=None,save_dir:str=None,render_intime:bool=False):
@@ -534,7 +548,7 @@ class ConverseEnv():
         K = self.K
         plot_data = self.plot_data_list[-1]
         X_combinations = self.X_combinations
-        ine_constraints = self.ine_constraints
+        ine_constraints_shape = self.ine_constraints_shape
         vars = self.render_vars
         point_num = self.point_num
         episode = self.episode
@@ -572,7 +586,7 @@ class ConverseEnv():
         plt.xlabel("M")
         plt.ylabel("R")
         plt.legend()
-        plt.title("Case(N,K)=({},{}),episode{}\nX_type={}\nvars:{},cons:{}".format(N,K,episode,X_combinations,len(vars),ine_constraints.shape))
+        plt.title("Case(N,K)=({},{}),episode{}\nX_type={}\nvars:{},cons:{}".format(N,K,episode,X_combinations,len(vars),ine_constraints_shape))
         if render_intime:
             plt.show()
         else: # 否则就要保存为图片。没有进行测试过。
@@ -601,7 +615,7 @@ if __name__ == "__main__":
         # 修复时间差显示 - 使用str方法并替换字符
         time_diff = datetime.datetime.now() - start_env_time
         total_time = str(time_diff).replace(':', '-').replace('.', '-')
-        env.render(save_dir=f"E:/pycharm/python_doc/learntoconverse_reconstructed/01example/best_from_xxy_20250808/test_result/N={env.N},K={env.K}",namestring=f"episode={env.episode},time={time_now},total_time={total_time},total_reward = {round(sum(env.reward_list),5)}") # step 之后才可以进行render哎。
+        env.render(save_dir=f"E:/pycharm/python_doc/learntoconverse_reconstructed/01example/best_from_xxy_20250808/test_result/N={env.N},K={env.K}/one_deepcopy",namestring=f"episode={env.episode},time={time_now},total_time={total_time},total_reward = {round(sum(env.reward_list),5)}") # step 之后才可以进行render哎。
         if done:
             break
     print(env.reward_list)

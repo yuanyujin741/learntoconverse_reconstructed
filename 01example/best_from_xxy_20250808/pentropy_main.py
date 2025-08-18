@@ -5,8 +5,32 @@ import numpy as np
 import random
 import time
 import matplotlib.pyplot as plt
+import inspect
+import builtins
+def print_(*args):
+    """
+    增强版print函数，自动打印变量名和值
+    注意这里不能打印临时变量。
+    示例:
+        x = 10
+        print_(x)  # 输出: x: 10
+    """
+    frame = inspect.currentframe()
+    try:
+        # 获取调用帧的局部变量
+        caller_locals = frame.f_back.f_locals
+        
+        for arg in args:
+            # 查找变量名
+            var_name = [name for name, value in caller_locals.items() if value is arg][0]
+            builtins.print(f"{var_name}: {arg}")
+    except:
+        builtins.print(*args)
+    finally:
+        del frame  # 避免内存泄漏
+print = print_
 
-
+# region Iutils
 class Iutils:
     """
     A class containing utility functions for the AI for Converse project.
@@ -249,7 +273,7 @@ class Iutils:
         if size > total_size:
             size = total_size
         # num = 20
-        print("comb size",size)
+        print(f"actual comb size: {size}")
 
         ori_combs = list(itertools.combinations(single_vars, 2))
         # 使用 random.sample 从 ori_combs 中随机抽取 size 个元素
@@ -272,8 +296,8 @@ class Iutils:
 
         :param vars: I(x;y|z)对应的{z}
         :param single_vars: 单变量集合，用于生成排列组合(x,y)
-        :param expand_vars: 经过预处理扩充的变量集，用于更新熵字典，元素为字符串列表
-        :param combs:筛选的排列组合，元素类型为字符串
+        :param expand_vars: (as return)经过预处理扩充的变量集，用于更新熵字典，元素为字符串列表
+        :param combs: 筛选的排列组合，元素类型为字符串
         """
 
         varlist_W = [ivar for ivar in single_vars if ivar[0] == 'W']
@@ -495,6 +519,10 @@ class Iutils:
     
     @staticmethod
     def symmetrize_by_dict_simple(N,K,expand_vars,entropydict_all):
+        """
+        用于将expanded_vars中的变量进行对称性处理，加入entropydict_all中。
+        :param: expanded_vars: 经过拓展之后的，封闭的变量集合。
+        """
         index = len(entropydict_all.redict)
         cnt_get = 0
         cnt_notget = 0
@@ -1139,7 +1167,7 @@ class Iutils:
 
         return (x, y)
 
-
+# region Other
 class Ivar:
     """Random variable class"""
 
@@ -1742,3 +1770,569 @@ class EntropyEqDict:
 
     def __repr__(self) -> str:
         return str(self.eqdict) + "\n" + str(self.redict)
+
+# region Env
+def get_reduced_X_combination(N,K, debug = True):
+    """
+    get the reduced X_combination of N,K
+    """
+    calculate_X_combination = calculate_reduced_X_combination(N,K,False)
+    if N == 2 and K == 2:
+        X_combinations = ["X12"]
+    elif N == 2 and K == 3:
+        X_combinations = ["X112"]
+    elif N == 2 and K == 4: # 24
+        X_combinations = ["X1112","X1122"]
+    elif N == 3 and K == 2: # 32
+        X_combinations = ["X12","X13"]
+    elif N == 3 and K == 3: # 33
+        X_combinations = ["X112","X113","X123"]
+    elif N == 4 and K == 2: # 42
+        X_combinations = ["X12","X13","X14"]
+    elif N == 4 and K == 3: #43
+        X_combinations = ["X112","X113","X114","X123"]
+    elif N == 4 and K == 4:
+        X_combinations = ["X1112","X1123","X1234"]
+    elif N == 4 and K == 5:
+        X_combinations = ["X11112","X11123","X11234"]
+    elif N == 5 and K == 4:
+        X_combinations = ["X1112","X1123","X1234"]
+    elif N == 5 and K == 6:
+        X_combinations = ["X111112","X111123","X111234","X112345"]
+    elif N == 5 and K == 5:
+        X_combinations = ["X11112","X11123","X11234","X12345"]
+    elif N == 6 and K == 4:
+        X_combinations = ["X1112","X1123","X1234"]
+    else:
+        X_combinations = calculate_reduced_X_combination(N,K,debug)
+        print("Using calculated reduced X_combinations",X_combinations)
+    if (X_combinations != calculate_X_combination) and debug:
+        print("X_combinations{} is not equal to calculate_X_combination{} for N,K={},{}".format(X_combinations,calculate_X_combination,N,K))
+    return X_combinations
+def calculate_reduced_X_combination(N,K,debug = True):
+    """
+    calculate the reduced X_combination of N,K
+    """
+    window = [1] * (K - 2)
+    range_window = list(range(1, N+1))
+    window.extend(range_window)
+    if debug:
+        print(window)
+    format_str = "X"+"".join(["{}"]*K)
+    range_num = min(len(window) - K +1, K - 2 + 1)
+    X_combinations = [format_str.format(*window[i:i+K]) for i in range(range_num)]
+    if debug:
+        print(X_combinations)
+    return X_combinations
+
+# cutsetbound需要的函数
+def preprocessing_single(x_vars,y_vars,z_vars,expand_vars):
+    for index,x in enumerate(x_vars):
+        y = y_vars[index]
+        new_var = x + y
+        new_var = Iutils.sort_elements(new_var)
+        if new_var not in expand_vars:
+            expand_vars.append(new_var)
+        
+        if len(z_vars) != 0:
+            z = z_vars[index]
+            if len(z) != 0:
+                new_var = x + z
+                new_var = Iutils.sort_elements(new_var)
+                if new_var not in expand_vars:
+                    expand_vars.append(new_var)
+                
+                new_var = x + y + z
+                new_var = Iutils.sort_elements(new_var)
+                if new_var not in expand_vars:
+                    expand_vars.append(new_var)
+
+def generate_single_inequalities(ix_vars,iy_vars,iz_vars,hx_vars,hy_vars,entropydict,regions):
+    """
+        更新不等式集regions，由变量生成不等式
+    
+        :param vars: I(x;y|z)中的z集合
+        :param single_vars: 单变量集合，用于生成排列组合(x,y)
+        :param  entropydict: 熵字典，存储所有互信息扩展后的联合熵变量的值，
+        保证优化变量与不等式矩阵一一对应
+        :param regions: 不等式集，调用函数前为上一轮迭代得到的有效不等式，
+        调用函数后增加新变量生成的不等式
+
+    """
+    # generate I(x;y) & I(x;y|z)
+    for index,x in enumerate(ix_vars):
+        y = iy_vars[index]
+        x = Ivar.rv(x)
+        y = Ivar.rv(y)
+        
+        # print("XY",x,y,z)
+        term_x = Comp(set(x))
+        term_y = Comp(set(y))
+        # I(x;y)
+        if len(iz_vars) == 0:
+            term = Term.I(term_x, term_y)
+        
+        # I(x;y|z) or I(x;y)
+        else:
+            z = iz_vars[index]
+            if len(z) == 0:
+                term = Term.I(term_x, term_y)
+            else:
+                z = Ivar.rv(z)
+                term_z = Comp(set(z))
+                term = Term.Ic(term_x, term_y, term_z)
+            
+        terms = [term]
+        print(term)
+        expr = Expr.empty()
+        regions.append_expr(expr.inequality(terms=terms, edict=entropydict))
+
+    # generate H(x;y)
+    for index,x in enumerate(hx_vars):
+        y = hy_vars[index]
+        x = Ivar.rv(x)
+        y = Ivar.rv(y)
+        
+        term_x = Comp(set(x))
+        term_y = Comp(set(y))
+        term = Term.Hc(term_x, term_y)
+
+        terms = [term]
+        print(term)
+        expr = Expr.empty()
+        regions.append_expr(expr.inequality(terms=terms, edict=entropydict))
+
+def create_cutset_bound(N,K,user_perm,file_perm,Wkey,vars):
+    regions = Region.empty()
+    entropydict = EntropyEqDict() # 因为一开始就是这样初始化的所以就不输入一个region了。
+
+    ix_vars = []
+    iy_vars = []
+    iz_vars = []
+    hx_vars = []
+    hy_vars = []
+
+    for s in range(1,min(N,K)+1):
+        print(s)
+        X_list = []
+        coef = N // s
+        i = 0
+        for num in range(coef):
+            X_comb = []
+            for j in range(K):
+                X_comb.append(((i + j) % N) + 1)
+            X_comb_str = "".join(map(str,X_comb))
+            X_list.append("X" + X_comb_str)
+            i += s
+        Z_list = ["Z" + str(i) for i in range(1,s+1)]
+        cutset_list = X_list + Z_list
+
+        print(cutset_list)
+        
+        for index,var in enumerate(cutset_list):
+            if index != 0:
+                ix_vars.append([var])
+                if [var] not in vars:
+                    vars.append([var])
+                y_var = cutset_list[:index]
+                iy_vars.append(y_var)
+                if y_var not in vars:
+                    vars.append(y_var)
+        
+        hx_vars.append(cutset_list)
+        keyZ_list = [elem for elem in cutset_list if elem.startswith("Z")]
+        keyX_list = [elem for elem in cutset_list if elem.startswith("X")]
+        keyW_new_set = set()
+        for keyZ in keyZ_list:
+            userindex = int(keyZ[1])
+            fileindex_set = set(['W'+ s[userindex] for s in keyX_list])
+            keyW_new_set = keyW_new_set.union(fileindex_set)
+        hy_vars.append(list(keyW_new_set))
+        vars.append(list(keyW_new_set))
+
+        print("cutset_list",cutset_list)
+        print("ix_vars",ix_vars)
+        print("iy_vars",iy_vars)
+        print("hx_vars",hx_vars)
+        print("hy_vars",hy_vars)
+
+    print(len(vars))
+    print(vars)
+
+    expand_vars = vars[:]
+    preprocessing_single(ix_vars+hx_vars,iy_vars+hy_vars,iz_vars,expand_vars)
+    print("len of vars",len(vars))
+    print("len of expand vars",len(expand_vars))
+    # print("expand_vars",expand_vars)
+    Xrvs_cons = []
+    Wrvs_cons = []
+    Iutils.symmetrize(user_perm,file_perm,expand_vars,entropydict)
+    Iutils.problem_constraints_process(N,K,Wkey,entropydict)
+    entropydict.regenerate_keys()
+    # print(len(entropydict.redict))
+    # print(entropydict.redict)
+    # print(entropydict)
+    print("Xrvs_cons",Xrvs_cons)
+    print("Wrvs_cons",Wrvs_cons)
+    generate_single_inequalities(ix_vars,iy_vars,iz_vars,hx_vars,hy_vars,entropydict,regions)
+
+    regions.sort_exprs()
+    cutset_regions = regions.copy()
+
+    for expr in cutset_regions.exprs:
+        print(expr)
+    print("num of exprs",len(cutset_regions.exprs))
+    regions.reduce_redundant_expr()
+
+    return regions, entropydict
+
+def calculate_square(plot_data):
+    """
+    输入要绘制的点， 就可以得到对应的面积了（也就是折线下面的面积啊）。
+    """
+    x_data = [item[0] for item in plot_data]
+    y_data = [item[1] for item in plot_data]
+    square = 0
+    for i in range(1,len(x_data)):
+        square += (x_data[i] - x_data[i-1]) * (y_data[i] + y_data[i-1])
+    return square / 2
+
+def Regions2Matrix(entropydict:EntropyEqDict, regions:Region):
+    """
+    Updated from the new codes by xv.
+    """
+    # construct the constranits matrix
+    ine_constraints = []
+    print(len(entropydict.redict))
+    ent_num = len(entropydict.redict) + 3 # 所有熵变量+M+R+value
+    for expr in regions.exprs:
+        row = [0] * ent_num
+        for term in expr.terms:
+            # print(entropydict[term.to_ent_str()])
+            row[entropydict[term.to_ent_str()]] = term.coef
+        row[-1] = expr.value
+        ine_constraints.append(row)
+    return ine_constraints
+
+def AddProblemConstrains2Matrix(Xrvs_cons,Wrvs_cons,entropydict,ent_num,ine_constraints):
+    """
+    Updated from the new codes by xv.
+    """
+    # R >= H(X)
+    print(Xrvs_cons)
+    print(Wrvs_cons)
+    prob_cons_num = 0
+    for key in Xrvs_cons:
+        if entropydict.get(key) != None:
+            row3 = [0] * ent_num
+            row3[entropydict[key]] = -1
+            row3[-2] = 1
+            ine_constraints.append(row3)
+            prob_cons_num += 1
+
+    # M >= H(Z)
+    row5 = [0] * ent_num
+    row5[entropydict["Z1"]] = -1
+    row5[-3] = 1
+    ine_constraints.append(row5)
+    prob_cons_num += 1
+
+    # H(W1,..,Wn) >= n
+    for key in Wrvs_cons:
+        if entropydict.get(key) != None:
+            rvs = key.split(",")
+            row3 = [0] * ent_num
+            row3[entropydict[key]] = 1
+            row3[-1] = len(rvs)
+            # print(row3)
+            ine_constraints.append(row3)
+            prob_cons_num += 1
+
+    # M = M_value
+    row5 = [0] * ent_num
+    ine_constraints.append(row5)
+
+    return ine_constraints,prob_cons_num
+
+# original problem solver
+from gurobipy import Model, GRB, LinExpr, GurobiError
+import gurobipy as gp
+
+def gurobi_solver(effective_idx_gurobi, ori_obj_coef,ent_num:int,ine_constraints:np.array,regions:Region):
+    """
+    Updated from the new codes by xv.
+    changed effective_idx_gurobi to return.
+    """
+    try:
+        ine_list = []
+        # global result_slope
+        # 创建 Gurobi 模型
+        model = Model("entropy_minimization")
+
+        # 禁用输出日志（可选）
+        model.setParam("OutputFlag", 0)
+
+        # 创建变量
+        variables = []
+        for i in range(ent_num):
+            var = model.addVar(name=f"V{i}", lb=0)
+            variables.append(var)
+        obj_expr = gp.quicksum(ori_obj_coef * variables)
+        model.setObjective(obj_expr, GRB.MINIMIZE)
+        # model.setObjective(variables[-1], GRB.MINIMIZE)
+        # var_names = ["V" + str(i) for i in range(ent_num)]
+        # variables = model.addVars(var_names, lb=0, obj=[0.0] * (ent_num), name="V")
+        # variables[var_names[-1]].obj = 1.0  # 设置目标函数的系数
+        # model.setObjective(variables[var_names[-1]], GRB.MINIMIZE)
+
+        # 添加不等式约束
+        for ine in ine_constraints[:-1]:
+            model.addConstr(LinExpr(ine[:-1], variables) >= ine[-1])
+
+        # 添加等式约束 M = M_value
+        M_cons = ine_constraints[-1]
+        model.addConstr(LinExpr(M_cons[:-1], variables) == M_cons[-1])
+        # 添加等式约束 M = M_value
+        # model.addConstr(variables[var_names[-2]] == M_value)
+
+        model.optimize()
+
+        # 检查求解状态
+        if model.status == GRB.OPTIMAL:
+            dual_values = model.getAttr('Pi', model.getConstrs())
+
+            indices = [i for i, val in enumerate(dual_values) if abs(val) > 1e-5 and i < len(regions.exprs)]
+            # slope = dual_values[-1]
+            # result_slope.append(slope)
+
+            for index in indices:
+                if index not in effective_idx_gurobi:
+                    effective_idx_gurobi.append(index)
+                    effective_idx_gurobi.sort()
+            
+            # 获取目标函数值
+            optimal_value = model.objVal
+            print(f"Optimal value: {optimal_value}")
+        
+            return optimal_value,effective_idx_gurobi
+        elif model.status == GRB.INFEASIBLE:
+            print("Model is infeasible. Trying to find the IIS...")
+            model.computeIIS()
+            model.write("model.ilp")
+            print("IIS written to model.ilp. Check this file for conflicting constraints.")
+            for c in model.getConstrs():
+                if c.IISConstr:
+                    print(f"约束 {c.constrName} 导致不可行")
+                    ine_list.append(c.constrName)
+            for v in model.getVars():
+                if v.IISLB or v.IISUB:
+                    print(f"变量 {v.varName} 的边界条件导致不可行")
+            return ine_list,effective_idx_gurobi
+        else:
+            print(f"Model status: {model.status}")
+            return None,effective_idx_gurobi
+    except GurobiError as e:
+        print(f"Gurobi Error: {e}")
+        return None,effective_idx_gurobi
+
+def dual_solver(expr_num,dual_obj_coef,trans_ine_cons,prob_cons_num):
+    """
+    Updated from the new codes by xv.
+    """
+    try:
+        effective_idx_dual = []
+        # 创建 Gurobi 模型
+        model = Model("secondary LP")
+
+        # 启用输出日志
+        model.setParam("OutputFlag", 0)
+
+        # 创建变量
+        variables = []
+        for i in range(expr_num):
+            var = model.addVar(name=f"Y{i}", lb=0)
+            variables.append(var)
+        var_z = model.addVar(name="Z",lb=-GRB.INFINITY, ub=GRB.INFINITY)
+        variables.append(var_z)
+        # print("expr_num",expr_num)
+        # print("len_var",len(variables))
+        # objective_expr = gp.quicksum(coef_dual[i] * variables[i] for i in range(expr_num)) + M_value * variables[-1]
+        objective_expr = gp.quicksum(dual_obj_coef * variables)
+        # objective_expr = gp.quicksum(variables)
+        model.setObjective(objective_expr, GRB.MAXIMIZE)
+
+        # 添加不等式约束
+        for ine in trans_ine_cons:
+            model.addConstr(LinExpr(ine[:-1], variables) == ine[-1])
+
+        # 添加等式约束 M = M_value
+        # model.addConstr(variables[-1] == M_value)
+
+        model.optimize()
+
+        # 检查求解状态
+        if model.status == GRB.OPTIMAL:
+            # 获取目标函数值
+            optimal_value = model.objVal
+            # print(f"Optimal value: {optimal_value}")
+
+            # 获取变量的最优解
+            solution_values = {var.varName: var.x for var in model.getVars()}
+            # print(f"Solution: {solution_values}")
+
+            for var_name, var_value in solution_values.items():
+                if var_value > 0:
+                    index = int(var_name[1:])
+                    if index < expr_num - prob_cons_num and index is not None:
+                        effective_idx_dual.append(index)
+            return solution_values, effective_idx_dual
+        elif model.status == GRB.INFEASIBLE:
+            print("Model is infeasible. Trying to find the IIS...")
+            model.computeIIS()
+            model.write("model.ilp")
+            print("IIS written to model.ilp. Check this file for conflicting constraints.")
+            return None,None
+        else:
+            print(f"Model status: {model.status}")
+            return None,None
+    except GurobiError as e:
+        print(f"Gurobi Error: {e}")
+        return None,None
+    
+def find_min_effective_indices(dual_value,regions):
+    """
+    基于现有的dual_prob求解的结果，得到实际上最少的indices。
+    """
+    non_zero_counts = np.count_nonzero(dual_value, axis=1)
+    old_slope = 0
+    single_cut_idx = []
+    all_cut_idx = set()
+    old_slope = dual_value[0][-1]
+    min_row = 0
+    min_cnt = non_zero_counts[0]
+    for idx,row in enumerate(dual_value):
+        if row[-1] != old_slope:
+            for i,value in enumerate(dual_value[min_row]):
+                if value > 0 and i < len(regions.exprs):
+                    single_cut_idx.append(i)
+            # print(f"slope:{old_slope},index{single_cut_idx}")
+            all_cut_idx = all_cut_idx.union(set(single_cut_idx))
+            old_slope = row[-1]
+            min_cnt = non_zero_counts[idx]
+            min_row = idx
+            single_cut_idx = []
+            continue
+        if non_zero_counts[idx] < min_cnt:
+            min_cnt = non_zero_counts[idx]
+            min_row = idx
+    for i,value in enumerate(dual_value[min_row]):
+        if value > 0 and i < len(regions.exprs):
+            single_cut_idx.append(i)
+    all_cut_idx = all_cut_idx.union(set(single_cut_idx))
+    # print(f"slope:{old_slope},index{single_cut_idx}")
+    # print("all",all_cut_idx)
+    return sorted(list(all_cut_idx))
+
+# 转化为encoding的形式
+# 在 pentropy_main.py 顶部添加以下代码
+import sys
+import os
+sys.path.append(r"E:\pycharm\python_doc\learntoconverse_reconstructed")
+from helpful_files.expr2vec import Expr2Vec
+def Regions2VecMatrix(regions:Region,N:int=2,K:int=2,necessary_vars:list[list[str]]=[["W1"]]):
+    """
+    直接使用Expr2Vec函数，实现从regions到VecMatrix的转换。
+    注意只有在empty的情况下才会使用NK参数。
+    """
+    t_start = time.time()
+    if regions.exprs == []:
+        RegionStrList = [f"Selecting with N = {N}, K = {K}, necessary_vars = {necessary_vars}"]
+    else:
+        RegionStrList = [str(expr) for expr in regions.exprs]
+    len_region = len(RegionStrList)
+    print(len_region)
+    VecMatrixList = Expr2Vec(ExprStrList = RegionStrList)
+    t_end = time.time()
+    return np.array(VecMatrixList)
+
+class Timer():
+    def __init__(self):
+        """
+        数据结构：
+        [ # record
+            [ # episode
+                {
+                    "encoding_time":{
+                        "time":0.1,
+                        "remark":{
+                            "regions_exprs": 12,
+                            "candidate_regions_exprs":256,
+                        }
+                    },
+                    "symmetry_time":{
+                        "time":2,
+                        "remark":{
+                            "before_exprs":256,
+                            "after_exprs":145,
+                        }
+                    }
+                    "solving_time":{
+                        "time":0.1,
+                        "remark":{
+                            "num_exprs":12,
+                            "num_vars":12,
+                        }
+                    },
+                },
+            ]
+        ]
+        """
+        self.record = []
+        # 类内常量，可以使用Timer.ENCODING_TIME进行调用哎。
+        self.ENCODING_TIME = "encoding_time"
+        self.SOLVING_TIME = "solving_time"
+        self.SYMMETRY_TIME = "symmetry_time"
+        self.SUPPORTED_TIMER = [self.ENCODING_TIME,self.SOLVING_TIME,self.SYMMETRY_TIME]
+        self.episode_num = 0
+        self.template = {
+                    self.ENCODING_TIME:{
+                        "time":None,
+                        "remark":{
+                            "regions_exprs": None,
+                            "candidate_regions_exprs":None,
+                        }
+                    },
+                    self.SYMMETRY_TIME:{
+                        "time":None,
+                        "remark":{
+                            "before_exprs":None,
+                            "after_exprs":None,
+                        }
+                    },
+                    self.SOLVING_TIME:{
+                        "time":None,
+                        "remark":{
+                            "num_exprs":None,
+                            "num_vars":None,
+                        }
+                    },
+                }
+    def start(self,timer_class):
+        assert timer_class in self.SUPPORTED_TIMER, f"timer_class({timer_class}) in self.SUPPORTED_TIMER"
+        self.this_start = time.time()
+        self.this_timer_class = timer_class
+        remark = self.template[timer_class]["remark"]
+        return remark
+    def end(self,remark):
+        """
+        记得及时更新episode_num，这样的话，这里的record也会对应更新。
+        """
+        if self.episode_num == len(self.record):
+            self.record.append({})
+        self.record[self.episode_num][self.this_timer_class] = {}
+        self.record[self.episode_num][self.this_timer_class]["time"] = time.time() - self.this_start
+        returned_value = self.record[self.episode_num][self.this_timer_class]["time"]
+        self.record[self.episode_num][self.this_timer_class]["remark"] = remark
+        self.this_start = None
+        self.this_timer_class = None
+        return returned_value

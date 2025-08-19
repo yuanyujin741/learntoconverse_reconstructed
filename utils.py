@@ -21,12 +21,13 @@ import sys
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg') # 听说这个库可以助力实现并行运算；但是实际上一直用的都是matplotlib的agg哎。
-from helpful_files.pentropy_v3 import Iutils
-from converseenv import calculate_square
+from helpful_files.pentropy_v3 import Iutils # 主要是v3有些代码修改了一下，懒得改main了。直接用v3的代码。
+from helpful_files.pentropy_main import calculate_square # ajusted for env_v2
 from typing import Literal
+import cProfile
 
 class Config():
-    def __init__(self, DBM = True, continue_training = False, envs_NK=[[2,2],[2,3]], use_pretrained_model=False, pretrained_model_id = None, new_ineq_num_factor = 0.5, num_worker = 1, rewardtype:Literal["innerbound_ratio", "original"] = "original", test_mode = False, test_task_id = "000", test_task_models = [], test_num = 3):
+    def __init__(self, DBM = True, continue_training = False, envs_NK=[[2,2],[2,3]], use_pretrained_model=False, pretrained_model_id = None,pretrained_model_checkpoint = "latest", new_ineq_num_factor = 0.5, num_worker = 1, rewardtype:Literal["innerbound_ratio", "original"] = "original", test_mode = False, test_task_id = "000", test_task_models = [], test_num = 3, test_subject = "Nothing"):
 
         self.DBM = DBM
         self.continue_training = continue_training
@@ -36,6 +37,8 @@ class Config():
         self.pretrained_model_id = pretrained_model_id
         assert self.use_pretrained_model == False or self.pretrained_model_id != None
         assert self.use_pretrained_model == False or self.continue_training == False # 总之就是，从原来的最大的id继续训练（保存在该id处）；要么指定一个id，从这个id，训练出来一个新的id（自动寻找的最大的id）
+        self.pretrained_model_checkpoint = pretrained_model_checkpoint
+        assert (type(self.pretrained_model_checkpoint)==str and self.pretrained_model_checkpoint=="latest") or type(self.pretrained_model_checkpoint) == int
         self.new_ineq_num_factor = new_ineq_num_factor
         self.log_dir = f"02all_data/{self.task_id}"
         self.num_worker = num_worker
@@ -46,8 +49,12 @@ class Config():
         self.test_task_id = test_task_id
         self.test_task_models = test_task_models
         self.test_num = test_num
-        self.about_training = """ try another way of training, as is: use the CurrentReward InnerboundReward Ratio to train the policy. 
-        Training start from 006 to train 007 as Ratio Reward. And 006 is partly trained on linux server at the last few epoches. """
+        self.env_version = "v2" # in ["v1", "v2"]
+        assert self.env_version in ["v1", "v2"], "env_version must be v1 or v2"
+        assert self.env_version=="v1" or self.rewardtype!="innerbound_ratio", "converseenv_v1才可以使用innerbound_ratio"
+        self.test_subject = test_subject
+        self.cProfile_switch_on = False
+        self.about_training = """ Testing the performance of the FiLM layer. With FiLM here. """
 
     def set_task_id(self):
         # 设置数据目录路径（根据实际情况调整）
@@ -68,7 +75,7 @@ class Config():
         else:
             self.task_id = f"{new_id:03d}"  # 格式化为三位数字字符串
     
-    def set_policy_config(self, max_rollout_num = 1000, n_directions = 4, evaluate_time = 3, learning_rate = 0.01, gamma = 0.97, std = 0.02):
+    def set_policy_config(self, max_rollout_num = 500, n_directions = 4, evaluate_time = 3, learning_rate = 0.01, gamma = 0.97, std = 0.02):
         """
         :param: max_rollout_num: 最大rollout数，也就是最大进行多少次全部envs的rollout；取代了max_step
         """
@@ -104,10 +111,12 @@ class Config():
         直接根据envs_NK设置内边界对应的奖励。
         """
         self.innerbound_reward = {}
+        self.total_reward = {}
         for env_NK in self.envs_NK:
             innerbound = Iutils.plot_inner_bound(env_NK[0],env_NK[1],not_plot=True)
             cutsetbound = Iutils.plot_cutset_bound(env_NK[0],env_NK[1],point_num=12,not_plot=True)
             self.innerbound_reward[f"[{env_NK[0]},{env_NK[1]}]"] = np.exp(calculate_square(list(zip(innerbound[0],innerbound[1])))) - np.exp(calculate_square(list(zip(cutsetbound[0],cutsetbound[1]))))
+            self.total_reward[f"[{env_NK[0]},{env_NK[1]}]"] = np.exp(calculate_square(list(zip(innerbound[0],innerbound[1])))) - np.exp(0)
 
 def set_seed(args):
     """
@@ -186,7 +195,7 @@ def save_results_2_log(results:list[tuple], log:dict, config:Config):
     assert len(log["evaluate_each_rewards"]) == len(log["evaluate_average_rewards"]) and len(log["results"]) == len(log["evaluate_average_rewards"]), "log长度错误！！"
 
 # region envs
-from converseenv import ConverseEnv
+from converseenv_v2 import ConverseEnv
 class ConverseEnvWrapper(ConverseEnv):
     def __init__(self, N=3,K=3,RENDER = "dont_render",epsilon_id=0, FORTEST_model:int|str = "latest", test_number:int=0):
         super().__init__(N=N,K=K,RENDER=RENDER)
@@ -512,9 +521,15 @@ def rollout_envs(envs:list[ConverseEnvWrapper], policy:AttentionPolicy, config:C
         rewards = []
         times = []
         for i, env in enumerate(envs):
+            if config.cProfile_switch_on:
+                pr = cProfile.Profile()
+                pr.enable()
             r, t = rollout(env= env, policy=policy, rollout_length=config.rollout_length, gamma=config.gamma, NumFactor=config.new_ineq_num_factor,config = config)
             rewards.append(r)
             times.append(t)
+            if config.cProfile_switch_on:
+                pr.disable()
+                pr.print_stats(sort='cumtime')
 
     return epsilon_id, rewards, times
 
@@ -525,6 +540,7 @@ def rollout(env:ConverseEnvWrapper, policy, rollout_length, gamma, NumFactor,con
     without rewriting this function.by Yuan at 2025/5/18.
     change NUM to NumFactor to use Factor here.
     """
+    this_rollout_start_time = datetime.datetime.now()
     ob, _ = env.reset()
     factor = 1.0 # factor is gamma**n
     #ob = env.reset()
@@ -532,15 +548,20 @@ def rollout(env:ConverseEnvWrapper, policy, rollout_length, gamma, NumFactor,con
     t = 0
     rsum = 0
     while not done and t <= rollout_length:
-        if config.test_mode == True:
+        if config.test_mode == True and config.env_version == "v1":
             time_now = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S-%f")
             total_reward = 0.0 if len(env.rewardlist) == 0 else sum(env.rewardlist)
-            env.render(namestring=f"env_N={env.N}_K={env.K}_model={env.FORTEST_model}_test={env.test_number}_step={t}_time={time_now}_totalreward={total_reward}", save_dir = f"02all_data/{config.test_task_id}/test_pics")
+            env.render(namestring=f"env_N={env.N}_K={env.K}_model={env.FORTEST_model}_test={env.test_number}_step={t}_time={time_now}_totalreward={total_reward}", save_dir = f"02all_data/{config.test_task_id}/test_pics/env_v2_test")
         action = policy(ob,num=int(NumFactor*len(ob[-1])),n_value=env.N, k_value=env.K)
         #print(action)
-        time.sleep(60)
+        #time.sleep(60)
         ob, r, done = env.step(action)
-        #ob, r, done, _ = env.step(action)
+        if config.test_mode == True and config.env_version == "v2":
+            # 因为必须要在step之后进行render，所以需要分别处理两个不同的环境。
+            time_now = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S-%f")
+            total_reward = sum(env.reward_list)
+            total_time = str(datetime.datetime.now() - this_rollout_start_time).replace(':', '-').replace('.', '-')
+            env.render(namestring=f"model={env.FORTEST_model}_test={env.test_number}_step={t}_time={time_now}_totaltime={total_time}_totalreward={round(total_reward,5)}", save_dir = f"02all_data/{config.test_task_id}/test_pics/{config.test_subject}/{env.N}_{env.K}")
         rsum += r * factor
         factor *= gamma
         t += 1

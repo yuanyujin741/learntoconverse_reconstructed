@@ -26,9 +26,9 @@
 if __name__ == "__main__":
     # 初始化config，也就是全部的配置。
     from utils import *
-    multiprocessing.set_start_method('spawn')  # 关键修复。似乎也可以直接使用gpu进行模型训练了。
-    config = Config(continue_training=False, use_pretrained_model=False, pretrained_model_id="006", envs_NK=[[2,2]],new_ineq_num_factor=0.3,num_worker=2, DBM=True, rewardtype = "original",
-                    test_mode=True, test_task_id="006", test_task_models=[0, 50, 100, "latest"], test_num = 2)# 确实我自己是有点担心电脑会炸掉，一直这么高强度训练的话。,[3,2],[3,3],[2,4],[4,2],[4,3],[4,4]
+    #multiprocessing.set_start_method('spawn')  # 关键修复。似乎也可以直接使用gpu进行模型训练了。
+    config = Config(continue_training=False, use_pretrained_model=True, pretrained_model_id="007",pretrained_model_checkpoint = 0, envs_NK=[[2,2],[2,3]],new_ineq_num_factor=0.3,num_worker=1, DBM=True, rewardtype = "original",
+                    test_mode=False, test_subject="env_v2_test", test_task_id="006", test_task_models=[0,50,100,"latest"], test_num = 2)# 确实我自己是有点担心电脑会炸掉，一直这么高强度训练的话。,[3,2],[3,3],[2,4],[4,2],[4,3],[4,4]
     config.set_policy_config()
     import torch
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -46,8 +46,13 @@ if __name__ == "__main__":
 
     # 从pretrained_model_id加载模型
     if config.use_pretrained_model:
-        policy.load_state_dict(torch.load(f"02all_data/{config.pretrained_model_id}/model.pth"))
-        optimizer.load_state_dict(torch.load(f"02all_data/{config.pretrained_model_id}/optimizer.pth"))
+        if config.pretrained_model_checkpoint == "latest":
+            policy.load_state_dict(torch.load(f"02all_data/{config.pretrained_model_id}/model.pth"))
+            optimizer.load_state_dict(torch.load(f"02all_data/{config.pretrained_model_id}/optimizer.pth"))
+        else:
+            policy.load_state_dict(torch.load(f"02all_data/{config.pretrained_model_id}/checkpoint/model_{config.pretrained_model_checkpoint}.pth"))
+            optimizer.load_state_dict(torch.load(f"02all_data/{config.pretrained_model_id}/checkpoint/optimizer_{config.pretrained_model_checkpoint}.pth"))
+
     # 继续训练
     elif config.continue_training:
         policy.load_state_dict(torch.load(f"02all_data/{config.task_id}/model.pth"))

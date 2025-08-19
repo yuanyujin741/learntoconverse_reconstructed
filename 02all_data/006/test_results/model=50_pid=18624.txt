@@ -1,110 +1,0 @@
-1
-['X12', 'X21', 'Z1']
-cutset_list ['X12', 'X21', 'Z1']
-ix_vars [['X21'], ['Z1']]
-iy_vars [['X12'], ['X12', 'X21']]
-hx_vars [['X12', 'X21', 'Z1']]
-hy_vars [['W1', 'W2']]
-2
-['X12', 'Z1', 'Z2']
-cutset_list ['X12', 'Z1', 'Z2']
-ix_vars [['X21'], ['Z1'], ['Z1'], ['Z2']]
-iy_vars [['X12'], ['X12', 'X21'], ['X12'], ['X12', 'Z1']]
-hx_vars [['X12', 'X21', 'Z1'], ['X12', 'Z1', 'Z2']]
-hy_vars [['W1', 'W2'], ['W1', 'W2']]
-9
-[['W1', 'W2'], ['X21'], ['X12'], ['Z1'], ['X12', 'X21'], ['W1', 'W2'], ['Z2'], ['X12', 'Z1'], ['W1', 'W2']]
-len of vars 9
-len of expand vars 13
-symmetrize
-symmetrize time:0.0010094642639160156
-number of varibles 9
-Xrvs_cons ['X12']
-Wrvs_cons ['W1,W2']
-I(X21;X12)
-I(Z1;X12,X21)
-I(Z1;X12)
-I(Z2;X12,Z1)
-H(X12,X21,Z1|W1,W2)
-H(X12,Z1,Z2|W1,W2)
-2H({X12}) - H({X12,X21}) >= 0
-H({Z1}) + H({X12,X21}) - H({W1,W2}) >= 0
-H({X12}) + H({Z1}) - H({X12,Z1}) >= 0
-H({Z1}) + H({X12,Z1}) - H({W1,W2}) >= 0
-num of exprs 4
-oriall vars 0
-1.更新regions、vars
-number of effective exprs: 4
-len of effecitve vars 5
-{'Z1': 3, 'X12': 2, 'X12,X21': 2, 'W1,W2': 2, 'X12,Z1': 2}
-2.生成新vars
-3.对vars进行封闭集和对称性处理，生成entropydict
-before symmetrize num of expanded vars: 55
-all_before 5
------------symmetrize time 0.0015022754669189453 -----------
-after symmetreize num of expanded vars: 21
-all_after 21
-4.问题约束
-5.生成不等式集，并合并相同不等式
-4
-Batches:   0%|                                                                                               | 0/1 [00:00<?, ?it/s]Batches: 100%|███████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 58.83it/s]
-34
-Batches:   0%|                                                                                               | 0/1 [00:00<?, ?it/s]Batches: 100%|███████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 23.52it/s]
-**** regions_matrix: (4, 384), regions_candidate_matrix: (34, 384)
-entropydict_all.max_index()+1+3: 23
-6.生成不等式矩阵
-shape of ine_constraints (19, 14)
--------------Lp time:  0.0 -------------
-solve time 0.03699326515197754
-oriall vars 9
-1.更新regions、vars
-number of effective exprs: 4
-len of effecitve vars 5
-{'X12': 3, 'X12,X21': 2, 'W1,W2': 2, 'Z1': 2, 'X12,Z1': 2}
-2.生成新vars
-3.对vars进行封闭集和对称性处理，生成entropydict
-before symmetrize num of expanded vars: 49
-all_before 16
------------symmetrize time 0.0 -----------
-after symmetreize num of expanded vars: 11
-all_after 16
-4.问题约束
-5.生成不等式集，并合并相同不等式
-4
-Batches:   0%|                                                                                               | 0/1 [00:00<?, ?it/s]Batches: 100%|███████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  2.72it/s]Batches: 100%|███████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  2.72it/s]
-33
-Batches:   0%|                                                                                               | 0/1 [00:00<?, ?it/s]Batches: 100%|███████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 21.49it/s]
-**** regions_matrix: (4, 384), regions_candidate_matrix: (33, 384)
-entropydict_all.max_index()+1+3: 23
-rewardlist: [0.0]
-recent reward: [0.0]
-recent reward: [0.0]
-select action: [32, 28, 30, 33, 27, 19, 29, 21, 15, 25]  from len of  33
-6.生成不等式矩阵
-shape of ine_constraints (17, 14)
--------------Lp time:  0.0 -------------
-solve time 0.03313302993774414
-oriall vars 33
-1.更新regions、vars
-number of effective exprs: 4
-len of effecitve vars 5
-{'X12': 3, 'X12,X21': 2, 'W1,W2': 2, 'Z1': 2, 'X12,Z1': 2}
-2.生成新vars
-3.对vars进行封闭集和对称性处理，生成entropydict
-before symmetrize num of expanded vars: 58
-all_before 16
------------symmetrize time 0.0 -----------
-after symmetreize num of expanded vars: 12
-all_after 17
-4.问题约束
-5.生成不等式集，并合并相同不等式
-4
-Batches:   0%|                                                                                               | 0/1 [00:00<?, ?it/s]Batches: 100%|███████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  3.12it/s]Batches: 100%|███████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  3.11it/s]
-37
-Batches:   0%|                                                                                               | 0/1 [00:00<?, ?it/s]Batches: 100%|███████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 23.24it/s]
-**** regions_matrix: (4, 384), regions_candidate_matrix: (37, 384)
-entropydict_all.max_index()+1+3: 24
-rewardlist: [0.0, 0.0]
-recent reward: [0.0, 0.0]
-recent reward: [0.0, 0.0]
-select action: [31, 25, 29, 32, 24, 16, 26, 3, 20]  from len of  37

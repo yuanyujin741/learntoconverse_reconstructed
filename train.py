@@ -26,14 +26,16 @@
 if __name__ == "__main__":
     # 初始化config，也就是全部的配置。
     from utils import *
-    #multiprocessing.set_start_method('spawn')  # 关键修复。似乎也可以直接使用gpu进行模型训练了。
-    config = Config(continue_training=False, use_pretrained_model=False, pretrained_model_id="007",pretrained_model_checkpoint = 0, envs_NK=[[3,4],[4,4]],new_ineq_num_factor=0.3,num_worker=1, DBM=True, rewardtype = "original",
-                    test_mode=True, test_subject="without_FiLM", test_task_id="009", test_task_models=[0,50,100,150,200,250,300,350,"latest"], test_num = 2)# 确实我自己是有点担心电脑会炸掉，一直这么高强度训练的话。,[3,2],[3,3],[2,4],[4,2],[4,3],[4,4]
-    config.set_policy_config(using_FiLM=False)
+    multiprocessing.set_start_method('spawn')  # 关键修复。似乎也可以直接使用gpu进行模型训练了。
+    config = Config(continue_training=False, use_pretrained_model=True, pretrained_model_id="007",pretrained_model_checkpoint = 0, envs_NK=[[2,2],[2,3]],new_ineq_num_factor=0.3,num_worker=1, DBM=True, rewardtype = "original",
+                    test_mode=False, test_subject="without_FiLM", test_task_id="009", test_task_models=[0,50,100,150,200,250,300,350,"latest"], test_num = 2)# 确实我自己是有点担心电脑会炸掉，一直这么高强度训练的话。,[3,2],[3,3],[2,4],[4,2],[4,3],[4,4]
+    config.set_policy_config(using_FiLM=True)
     import torch
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     config.set_attention_network_config(device = device)
     print("device: ",device)
+    if config.test_mode == False:
+        set_seed(config)
     if config.DBM:
         config.print_config()
     # 建立envs：
@@ -67,6 +69,7 @@ if __name__ == "__main__":
         # 开始训练
         current_rollout_num = len(log['results']) # 适配了其他的问题哎
         while current_rollout_num < config.max_rollout_num:
+            config.set_intime_config(episode_num=current_rollout_num)
             # 做不同epsilon的rollout
             rollout_start_time = time.time()
             epsilon_table = create_epsilon_table(config=config, policy=policy) # create epsilon table

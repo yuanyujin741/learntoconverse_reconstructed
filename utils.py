@@ -54,7 +54,7 @@ class Config():
         assert self.env_version=="v1" or self.rewardtype!="innerbound_ratio", "converseenv_v1才可以使用innerbound_ratio"
         self.test_subject = test_subject
         self.cProfile_switch_on = False
-        self.about_training = """ Testing the performance of the FiLM layer. With FiLM here. """
+        self.about_training = """ Testing the performance of the FiLM layer. Without FiLM here. """
 
     def set_task_id(self):
         # 设置数据目录路径（根据实际情况调整）
@@ -75,7 +75,7 @@ class Config():
         else:
             self.task_id = f"{new_id:03d}"  # 格式化为三位数字字符串
     
-    def set_policy_config(self, max_rollout_num = 500, n_directions = 4, evaluate_time = 3, learning_rate = 0.01, gamma = 0.97, std = 0.02):
+    def set_policy_config(self, max_rollout_num = 500, n_directions = 4, evaluate_time = 3, learning_rate = 0.01, gamma = 0.97, std = 0.02, using_FiLM:bool=True):
         """
         :param: max_rollout_num: 最大rollout数，也就是最大进行多少次全部envs的rollout；取代了max_step
         """
@@ -87,6 +87,7 @@ class Config():
         self.gamma = gamma
         self.std = std
         self.rollout_length = 10 # 默认超过十次之后就直接结束了，不确定是否有用。
+        self.using_FiLM = using_FiLM
 
     def print_config(self):
         print('-'*3,"config",'-'*3)
@@ -246,24 +247,27 @@ class AttentionPolicy(nn.Module):
     因为不是自己写的，所以这里对config的使用不足，就这样吧，懒得改了。
     人类对代码进行检查，感觉没问题，后续做debug再说吧。
     """
-    def __init__(self, policy_params,device = "cpu"):
+    def __init__(self, policy_params,device = "cpu",using_FiLM:bool=True):
         super().__init__()
         self.device = device
         self.numvars = policy_params['numvars']
         hsize = policy_params['hsize']
         numlayers = policy_params['numlayers']
         embeddeddim = policy_params['embed']
+        self.using_FiLM = using_FiLM
 
         # 参数（NK）编码器
-        self.param_embed_dim = 4
-        self.param_encoder = nn.Sequential(
-            nn.Linear(2, self.param_embed_dim),
-            nn.Tanh()
-        ).to(self.device)
+        if self.using_FiLM:
+            self.param_embed_dim = 4
+            self.param_encoder = nn.Sequential(
+                nn.Linear(2, self.param_embed_dim),
+                nn.Tanh()
+            ).to(self.device)
 
         # 构建MLP和FiLM生成器
         self.layers = nn.ModuleList() # 这个是映射层哎。
-        self.film_generators = nn.ModuleList()# 这个是FiLM生成器，用于生成每个层的scale和bias。
+        if self.using_FiLM:
+            self.film_generators = nn.ModuleList()# 这个是FiLM生成器，用于生成每个层的scale和bias。
         
         input_dim = self.numvars + 1 # 输入维度处理
         for i in range(numlayers):
@@ -273,12 +277,13 @@ class AttentionPolicy(nn.Module):
                 layer = nn.Linear(hsize, hsize)
             self.layers.append(layer.to(self.device))
             
-            # FiML生成器
-            film_gen = nn.Sequential(
-                nn.Linear(self.param_embed_dim, 2*hsize),
-                nn.Tanh()
-            ).to(self.device)
-            self.film_generators.append(film_gen)
+            if self.using_FiLM:
+                # FiML生成器
+                film_gen = nn.Sequential(
+                    nn.Linear(self.param_embed_dim, 2*hsize),
+                    nn.Tanh()
+                ).to(self.device)
+                self.film_generators.append(film_gen)
         
         # 输出层
         self.final_layer = nn.Linear(hsize, embeddeddim)
@@ -331,23 +336,26 @@ class AttentionPolicy(nn.Module):
         baseob = totalob[:A.shape[0]]
         ob = totalob[A.shape[0]:]
         
-        # 参数编码
-        NK = torch.tensor([[n_value, k_value]], dtype=torch.float).to(self.device)
-        NK_embed = self.param_encoder(NK)
+        if self.using_FiLM:
+            # 参数编码
+            NK = torch.tensor([[n_value, k_value]], dtype=torch.float).to(self.device)
+            NK_embed = self.param_encoder(NK)
         
         # 前向传播
         x_base = baseob
         for i, layer in enumerate(self.layers):
             x_base = layer(x_base)
             x_base = F.tanh(x_base)
-            x_base = self.apply_film(x_base, NK_embed, i)
+            if self.using_FiLM:
+                x_base = self.apply_film(x_base, NK_embed, i)
         base_embed = self.final_layer(x_base)
         
         x_ob = ob
         for i, layer in enumerate(self.layers):
             x_ob = layer(x_ob)
             x_ob = F.tanh(x_ob)
-            x_ob = self.apply_film(x_ob, NK_embed, i)
+            if self.using_FiLM:
+                x_ob = self.apply_film(x_ob, NK_embed, i)
         cut_embed = self.final_layer(x_ob)
         
         # 计算attention

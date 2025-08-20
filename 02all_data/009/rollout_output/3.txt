@@ -1,0 +1,468 @@
+Wrvs_cons: ['W1', 'W1,W2']
+single_vars: ['W1', 'W2', 'Z1', 'Z2', 'X12']
+Wkey: W1,W2
+Xrvs_cons: ['X12']
+necessary_vars: [['W1'], ['W2'], ['Z1'], ['Z2'], ['X12'], ['W1', 'W2']]
+vars: [['W1'], ['W2'], ['Z1'], ['Z2'], ['X12'], ['W1', 'W2'], ['W1', 'W2'], ['W2', 'Z1', 'Z2', 'X12'], ['W1', 'W2', 'Z1'], ['W1', 'Z2'], ['W1', 'Z1', 'Z2'], ['W1', 'W2', 'X12'], ['W1', 'W2', 'Z1', 'X12'], ['W1', 'Z1', 'Z2'], ['Z1', 'Z2', 'X12'], ['W1', 'X12'], ['W2', 'Z1', 'Z2'], ['W1', 'Z1', 'Z2', 'X12'], ['Z2', 'X12'], ['Z1', 'X12'], ['W2', 'Z1'], ['W1', 'Z1', 'Z2', 'X12'], ['W1', 'Z2', 'X12'], ['Z1', 'X12'], ['W1', 'Z2', 'X12'], ['W1', 'Z1', 'Z2', 'X12'], ['W2', 'Z1', 'Z2'], ['W2', 'Z1', 'Z2', 'X12'], ['W1', 'W2', 'Z1', 'X12'], ['W1', 'Z1', 'Z2', 'X12'], ['W1', 'W2', 'Z1', 'Z2'], ['W2', 'Z1']]
+actual comb size: 10
+42
+expand_vars: [['W1'], ['W2'], ['Z1'], ['Z2'], ['X12'], ['W1', 'W2'], ['W1', 'W2'], ['W2', 'Z1', 'Z2', 'X12'], ['W1', 'W2', 'Z1'], ['W1', 'Z2'], ['W1', 'Z1', 'Z2'], ['W1', 'W2', 'X12'], ['W1', 'W2', 'Z1', 'X12'], ['W1', 'Z1', 'Z2'], ['Z1', 'Z2', 'X12'], ['W1', 'X12'], ['W2', 'Z1', 'Z2'], ['W1', 'Z1', 'Z2', 'X12'], ['Z2', 'X12'], ['Z1', 'X12'], ['W2', 'Z1'], ['W1', 'Z1', 'Z2', 'X12'], ['W1', 'Z2', 'X12'], ['Z1', 'X12'], ['W1', 'Z2', 'X12'], ['W1', 'Z1', 'Z2', 'X12'], ['W2', 'Z1', 'Z2'], ['W2', 'Z1', 'Z2', 'X12'], ['W1', 'W2', 'Z1', 'X12'], ['W1', 'Z1', 'Z2', 'X12'], ['W1', 'W2', 'Z1', 'Z2'], ['W2', 'Z1'], ['W1', 'Z1'], ['W1', 'W2', 'Z2'], ['W1', 'Z1', 'X12'], ['W2', 'X12'], ['W2', 'Z2'], ['W2', 'Z2', 'X12'], ['W2', 'Z1', 'X12'], ['Z1', 'Z2'], ['W1', 'W2', 'Z2', 'X12'], ['W1', 'W2', 'Z1', 'Z2', 'X12']]
+get:14,time:0
+not get:28,time:0.001702100009424612
+index: 0
+9
+{0: ['W1', 'W2'], 1: ['Z1', 'Z2'], 2: ['X12'], 3: ['W1,W2', 'W1,W2,Z1', 'W1,W2,Z2', 'W1,W2,X12', 'W1,Z2,X12', 'W2,Z1,X12', 'Z1,Z2,X12', 'W1,W2,Z1,Z2', 'W1,W2,Z1,X12', 'W1,W2,Z2,X12', 'W1,Z1,Z2,X12', 'W2,Z1,Z2,X12', 'W1,W2,Z1,Z2,X12'], 4: ['W1,Z1', 'W1,Z2', 'W2,Z1', 'W2,Z2'], 5: ['W1,Z1,Z2', 'W2,Z1,Z2'], 6: ['W1,X12', 'W2,X12'], 7: ['Z1,X12', 'Z2,X12', 'W1,Z1,X12', 'W2,Z2,X12'], 8: ['Z1,Z2']}
+len_region: 1
+ ... (more hidden) ... ... (more hidden) ...
+len_region: 29
+ ... (more hidden) ... ... (more hidden) ...
+9
+Xrvs_cons: ['X12']
+Wrvs_cons: ['W1', 'W1,W2']
+Optimal value: 2.0
+Optimal value: 1.8333333333333333
+Optimal value: 1.6666666666666667
+Optimal value: 1.5
+Optimal value: 1.3333333333333335
+Optimal value: 1.1666666666666667
+Optimal value: 1.0
+Optimal value: 0.9166666666666667
+Optimal value: 0.8333333333333334
+Optimal value: 0.75
+Optimal value: 0.6666666666666667
+Optimal value: 0.5833333333333334
+Optimal value: 0.5
+Optimal value: 0.45833333333333326
+Optimal value: 0.41666666666666674
+Optimal value: 0.375
+Optimal value: 0.33333333333333326
+Optimal value: 0.29166666666666674
+Optimal value: 0.25
+Optimal value: 0.20833333333333326
+Optimal value: 0.16666666666666674
+Optimal value: 0.125
+Optimal value: 0.08333333333333326
+Optimal value: 0.04166666666666674
+Optimal value: 0.0
+actual comb size: 10
+get:35,time:0
+not get:0,time:0
+len_region: 6
+ ... (more hidden) ... ... (more hidden) ...
+len_region: 29
+ ... (more hidden) ... ... (more hidden) ...
+select action: [11, 10, 17, 2, 18, 8, 5, 9]  from len of  29
+9
+Xrvs_cons: ['X12']
+Wrvs_cons: ['W1', 'W1,W2']
+Optimal value: 2.0
+Optimal value: 1.8333333333333333
+Optimal value: 1.6666666666666667
+Optimal value: 1.5
+Optimal value: 1.3333333333333335
+Optimal value: 1.1666666666666667
+Optimal value: 1.0
+Optimal value: 0.9166666666666667
+Optimal value: 0.8333333333333334
+Optimal value: 0.75
+Optimal value: 0.6666666666666667
+Optimal value: 0.5833333333333334
+Optimal value: 0.5
+Optimal value: 0.45833333333333326
+Optimal value: 0.41666666666666674
+Optimal value: 0.375
+Optimal value: 0.33333333333333326
+Optimal value: 0.29166666666666674
+Optimal value: 0.25
+Optimal value: 0.20833333333333326
+Optimal value: 0.16666666666666674
+Optimal value: 0.125
+Optimal value: 0.08333333333333326
+Optimal value: 0.04166666666666674
+Optimal value: 0.0
+actual comb size: 10
+get:36,time:0
+not get:0,time:0
+len_region: 6
+ ... (more hidden) ... ... (more hidden) ...
+len_region: 29
+ ... (more hidden) ... ... (more hidden) ...
+select action: [20, 0, 22, 1, 2, 11, 21, 4]  from len of  29
+9
+Xrvs_cons: ['X12']
+Wrvs_cons: ['W1', 'W1,W2']
+Optimal value: 2.0
+Optimal value: 1.8333333333333333
+Optimal value: 1.6666666666666667
+Optimal value: 1.5
+Optimal value: 1.3333333333333335
+Optimal value: 1.1666666666666667
+Optimal value: 1.0
+Optimal value: 0.9166666666666667
+Optimal value: 0.8333333333333334
+Optimal value: 0.75
+Optimal value: 0.6666666666666667
+Optimal value: 0.5833333333333334
+Optimal value: 0.5
+Optimal value: 0.45833333333333326
+Optimal value: 0.41666666666666674
+Optimal value: 0.375
+Optimal value: 0.33333333333333326
+Optimal value: 0.29166666666666674
+Optimal value: 0.25
+Optimal value: 0.20833333333333326
+Optimal value: 0.16666666666666674
+Optimal value: 0.125
+Optimal value: 0.08333333333333326
+Optimal value: 0.04166666666666674
+Optimal value: 0.0
+actual comb size: 10
+get:38,time:0
+not get:0,time:0
+len_region: 6
+ ... (more hidden) ... ... (more hidden) ...
+len_region: 29
+ ... (more hidden) ... ... (more hidden) ...
+select action: [9, 0, 11, 1, 2, 27, 10, 4]  from len of  29
+9
+Xrvs_cons: ['X12']
+Wrvs_cons: ['W1', 'W1,W2']
+Optimal value: 2.0
+Optimal value: 1.8333333333333333
+Optimal value: 1.6666666666666667
+Optimal value: 1.5
+Optimal value: 1.3333333333333335
+Optimal value: 1.1666666666666667
+Optimal value: 1.0
+Optimal value: 0.9166666666666667
+Optimal value: 0.8333333333333334
+Optimal value: 0.75
+Optimal value: 0.6666666666666667
+Optimal value: 0.5833333333333334
+Optimal value: 0.5
+Optimal value: 0.45833333333333326
+Optimal value: 0.41666666666666674
+Optimal value: 0.375
+Optimal value: 0.33333333333333326
+Optimal value: 0.29166666666666674
+Optimal value: 0.25
+Optimal value: 0.20833333333333326
+Optimal value: 0.16666666666666674
+Optimal value: 0.125
+Optimal value: 0.08333333333333326
+Optimal value: 0.04166666666666674
+Optimal value: 0.0
+actual comb size: 10
+get:37,time:0
+not get:0,time:0
+len_region: 6
+ ... (more hidden) ... ... (more hidden) ...
+len_region: 29
+ ... (more hidden) ... ... (more hidden) ...
+select action: [15, 0, 13, 1, 2, 8, 14, 4]  from len of  29
+9
+Xrvs_cons: ['X12']
+Wrvs_cons: ['W1', 'W1,W2']
+Optimal value: 2.0
+Optimal value: 1.8333333333333333
+Optimal value: 1.6666666666666667
+Optimal value: 1.5
+Optimal value: 1.3333333333333335
+Optimal value: 1.1666666666666667
+Optimal value: 1.0
+Optimal value: 0.9166666666666667
+Optimal value: 0.8333333333333334
+Optimal value: 0.75
+Optimal value: 0.6666666666666667
+Optimal value: 0.5833333333333334
+Optimal value: 0.5
+Optimal value: 0.45833333333333326
+Optimal value: 0.41666666666666674
+Optimal value: 0.375
+Optimal value: 0.33333333333333326
+Optimal value: 0.29166666666666674
+Optimal value: 0.25
+Optimal value: 0.20833333333333326
+Optimal value: 0.16666666666666674
+Optimal value: 0.125
+Optimal value: 0.08333333333333326
+Optimal value: 0.04166666666666674
+Optimal value: 0.0
+actual comb size: 10
+get:35,time:0
+not get:0,time:0
+len_region: 6
+ ... (more hidden) ... ... (more hidden) ...
+len_region: 28
+ ... (more hidden) ... ... (more hidden) ...
+select action: [24, 0, 22, 1, 2, 8, 23, 4]  from len of  28
+9
+Xrvs_cons: ['X12']
+Wrvs_cons: ['W1', 'W1,W2']
+Optimal value: 2.0
+Optimal value: 1.8333333333333333
+Optimal value: 1.6666666666666667
+Optimal value: 1.5
+Optimal value: 1.3333333333333335
+Optimal value: 1.1666666666666667
+Optimal value: 1.0
+Optimal value: 0.9166666666666667
+Optimal value: 0.8333333333333334
+Optimal value: 0.75
+Optimal value: 0.6666666666666667
+Optimal value: 0.5833333333333334
+Optimal value: 0.5
+Optimal value: 0.45833333333333326
+Optimal value: 0.41666666666666674
+Optimal value: 0.375
+Optimal value: 0.33333333333333326
+Optimal value: 0.29166666666666674
+Optimal value: 0.25
+Optimal value: 0.20833333333333326
+Optimal value: 0.16666666666666674
+Optimal value: 0.125
+Optimal value: 0.08333333333333326
+Optimal value: 0.04166666666666674
+Optimal value: 0.0
+actual comb size: 10
+get:36,time:0
+not get:0,time:0
+len_region: 6
+ ... (more hidden) ... ... (more hidden) ...
+len_region: 28
+ ... (more hidden) ... ... (more hidden) ...
+select action: [14, 0, 10, 1, 2, 18, 15, 4]  from len of  28
+Wrvs_cons: ['W1', 'W1,W2']
+single_vars: ['W1', 'W2', 'Z1', 'Z2', 'Z3', 'X112']
+Wkey: W1,W2
+Xrvs_cons: ['X112']
+necessary_vars: [['W1'], ['W2'], ['Z1'], ['Z2'], ['Z3'], ['X112'], ['W1', 'W2']]
+vars: [['W1'], ['W2'], ['Z1'], ['Z2'], ['Z3'], ['X112'], ['W1', 'W2'], ['W1', 'Z1'], ['Z1', 'Z3', 'X112'], ['W2', 'Z1', 'X112'], ['Z1', 'X112'], ['Z1', 'Z3'], ['W2', 'Z2', 'Z3'], ['W1', 'Z2', 'X112'], ['Z1', 'Z2', 'Z3', 'X112'], ['W1', 'W2', 'Z2', 'X112'], ['W2', 'X112'], ['W1', 'W2', 'Z3', 'X112'], ['W1', 'W2', 'Z2', 'X112'], ['W1', 'Z2', 'X112'], ['Z1', 'Z2', 'Z3', 'X112'], ['W2', 'Z3'], ['W1', 'W2', 'Z1', 'Z2'], ['W2', 'Z1', 'Z2'], ['W1', 'Z1', 'Z2'], ['W1', 'W2', 'Z2'], ['W1', 'Z2', 'Z3', 'X112'], ['W1', 'Z1', 'X112'], ['W1', 'Z2'], ['W2', 'Z1'], ['Z2', 'Z3', 'X112'], ['W1', 'Z3'], ['W1', 'Z2', 'Z3'], ['Z2', 'Z3'], ['W1', 'Z1', 'Z3', 'X112'], ['W1', 'Z1'], ['W1', 'Z1', 'Z2', 'X112']]
+actual comb size: 15
+67
+expand_vars: [['W1'], ['W2'], ['Z1'], ['Z2'], ['Z3'], ['X112'], ['W1', 'W2'], ['W1', 'Z1'], ['Z1', 'Z3', 'X112'], ['W2', 'Z1', 'X112'], ['Z1', 'X112'], ['Z1', 'Z3'], ['W2', 'Z2', 'Z3'], ['W1', 'Z2', 'X112'], ['Z1', 'Z2', 'Z3', 'X112'], ['W1', 'W2', 'Z2', 'X112'], ['W2', 'X112'], ['W1', 'W2', 'Z3', 'X112'], ['W1', 'W2', 'Z2', 'X112'], ['W1', 'Z2', 'X112'], ['Z1', 'Z2', 'Z3', 'X112'], ['W2', 'Z3'], ['W1', 'W2', 'Z1', 'Z2'], ['W2', 'Z1', 'Z2'], ['W1', 'Z1', 'Z2'], ['W1', 'W2', 'Z2'], ['W1', 'Z2', 'Z3', 'X112'], ['W1', 'Z1', 'X112'], ['W1', 'Z2'], ['W2', 'Z1'], ['Z2', 'Z3', 'X112'], ['W1', 'Z3'], ['W1', 'Z2', 'Z3'], ['Z2', 'Z3'], ['W1', 'Z1', 'Z3', 'X112'], ['W1', 'Z1'], ['W1', 'Z1', 'Z2', 'X112'], ['W1', 'X112'], ['W1', 'W2', 'X112'], ['W1', 'W2', 'Z1'], ['W1', 'Z1', 'Z3'], ['W1', 'Z3', 'X112'], ['W1', 'W2', 'Z3'], ['W2', 'Z2'], ['W2', 'Z2', 'X112'], ['W2', 'Z1', 'Z3'], ['W2', 'Z3', 'X112'], ['Z1', 'Z2'], ['Z1', 'Z2', 'X112'], ['Z1', 'Z2', 'Z3'], ['Z2', 'X112'], ['Z3', 'X112'], ['W1', 'W2', 'Z1', 'X112'], ['W1', 'W2', 'Z1', 'Z3'], ['W1', 'W2', 'Z2', 'Z3'], ['W1', 'Z1', 'Z2', 'Z3'], ['W1', 'W2', 'Z1', 'Z3', 'X112'], ['W2', 'Z1', 'Z3', 'X112'], ['W2', 'Z1', 'Z2', 'Z3', 'X112'], ['W1', 'Z1', 'Z2', 'Z3', 'X112'], ['W2', 'Z1', 'Z2', 'X112'], ['W1', 'W2', 'Z1', 'Z2', 'X112'], ['W2', 'Z1', 'Z2', 'Z3'], ['W2', 'Z2', 'Z3', 'X112'], ['W1', 'W2', 'Z2', 'Z3', 'X112'], ['W1', 'W2', 'Z1', 'Z2', 'Z3'], ['W1', 'W2', 'Z1', 'Z2', 'Z3', 'X112']]
+get:9,time:0
+not get:58,time:0.005437300038465764
+index: 0
+14
+{0: ['W1', 'W2'], 1: ['Z1', 'Z2', 'Z3'], 2: ['X112'], 3: ['W1,W2', 'W1,W2,Z1', 'W1,W2,Z2', 'W1,W2,Z3', 'W1,W2,X112', 'W1,Z3,X112', 'W2,Z1,X112', 'W2,Z2,X112', 'Z1,Z3,X112', 'Z2,Z3,X112', 'W1,W2,Z1,Z2', 'W1,W2,Z1,Z3', 'W1,W2,Z1,X112', 'W1,W2,Z2,Z3', 'W1,W2,Z2,X112', 'W1,W2,Z3,X112', 'W1,Z1,Z3,X112', 'W1,Z2,Z3,X112', 'W2,Z1,Z2,X112', 'W2,Z1,Z3,X112', 'W2,Z2,Z3,X112', 'Z1,Z2,Z3,X112', 'W1,W2,Z1,Z2,Z3', 'W1,W2,Z1,Z2,X112', 'W1,W2,Z1,Z3,X112', 'W1,W2,Z2,Z3,X112', 'W1,Z1,Z2,Z3,X112', 'W2,Z1,Z2,Z3,X112', 'W1,W2,Z1,Z2,Z3,X112'], 4: ['W1,Z1', 'W1,Z2', 'W1,Z3', 'W2,Z1', 'W2,Z2', 'W2,Z3'], 5: ['Z1,X112', 'Z2,X112', 'W1,Z1,X112', 'W1,Z2,X112'], 6: ['Z1,Z2', 'Z1,Z3', 'Z2,Z3'], 7: ['W1,Z1,Z2', 'W1,Z1,Z3', 'W1,Z2,Z3', 'W2,Z1,Z2', 'W2,Z1,Z3', 'W2,Z2,Z3'], 8: ['W2,X112'], 9: ['W1,X112'], 10: ['Z1,Z2,X112', 'W1,Z1,Z2,X112'], 11: ['Z1,Z2,Z3'], 12: ['Z3,X112', 'W2,Z3,X112'], 13: ['W1,Z1,Z2,Z3', 'W2,Z1,Z2,Z3']}
+len_region: 1
+ ... (more hidden) ... ... (more hidden) ...
+len_region: 59
+ ... (more hidden) ... ... (more hidden) ...
+14
+Xrvs_cons: ['X112']
+Wrvs_cons: ['W1', 'W1,W2']
+Optimal value: 2.0
+Optimal value: 1.8333333333333335
+Optimal value: 1.6666666666666665
+Optimal value: 1.5
+Optimal value: 1.3333333333333335
+Optimal value: 1.166666666666667
+Optimal value: 1.0
+Optimal value: 0.9166666666666667
+Optimal value: 0.8333333333333334
+Optimal value: 0.75
+Optimal value: 0.6666666666666667
+Optimal value: 0.5833333333333334
+Optimal value: 0.5
+Optimal value: 0.45833333333333326
+Optimal value: 0.41666666666666674
+Optimal value: 0.375
+Optimal value: 0.33333333333333326
+Optimal value: 0.29166666666666674
+Optimal value: 0.25
+Optimal value: 0.20833333333333326
+Optimal value: 0.16666666666666674
+Optimal value: 0.125
+Optimal value: 0.08333333333333326
+Optimal value: 0.04166666666666674
+Optimal value: 0.0
+actual comb size: 15
+get:68,time:0
+not get:0,time:0
+len_region: 7
+ ... (more hidden) ... ... (more hidden) ...
+len_region: 61
+ ... (more hidden) ... ... (more hidden) ...
+select action: [49, 25, 26, 16, 19, 20, 12, 47, 24, 27, 14, 23, 51, 40, 56, 22, 50]  from len of  61
+14
+Xrvs_cons: ['X112']
+Wrvs_cons: ['W1', 'W1,W2']
+Optimal value: 2.0
+Optimal value: 1.8333333333333335
+Optimal value: 1.6666666666666665
+Optimal value: 1.5
+Optimal value: 1.3333333333333335
+Optimal value: 1.166666666666667
+Optimal value: 1.0
+Optimal value: 0.9166666666666667
+Optimal value: 0.8333333333333334
+Optimal value: 0.75
+Optimal value: 0.6666666666666667
+Optimal value: 0.5833333333333334
+Optimal value: 0.5
+Optimal value: 0.45833333333333326
+Optimal value: 0.41666666666666674
+Optimal value: 0.375
+Optimal value: 0.33333333333333326
+Optimal value: 0.29166666666666674
+Optimal value: 0.25
+Optimal value: 0.20833333333333326
+Optimal value: 0.16666666666666674
+Optimal value: 0.125
+Optimal value: 0.08333333333333326
+Optimal value: 0.04166666666666674
+Optimal value: 0.0
+actual comb size: 15
+get:70,time:0
+not get:0,time:0
+len_region: 7
+ ... (more hidden) ... ... (more hidden) ...
+len_region: 57
+ ... (more hidden) ... ... (more hidden) ...
+select action: [49, 24, 42, 33, 0, 43, 12, 23, 38, 2, 17, 41, 32, 58, 27, 1, 4, 22]  from len of  57
+14
+Xrvs_cons: ['X112']
+Wrvs_cons: ['W1', 'W1,W2']
+Optimal value: 2.0
+Optimal value: 1.8333333333333335
+Optimal value: 1.6666666666666665
+Optimal value: 1.5
+Optimal value: 1.3333333333333335
+Optimal value: 1.166666666666667
+Optimal value: 1.0
+Optimal value: 0.9166666666666667
+Optimal value: 0.8333333333333334
+Optimal value: 0.75
+Optimal value: 0.6666666666666667
+Optimal value: 0.5833333333333334
+Optimal value: 0.5
+Optimal value: 0.45833333333333326
+Optimal value: 0.41666666666666674
+Optimal value: 0.375
+Optimal value: 0.33333333333333326
+Optimal value: 0.29166666666666674
+Optimal value: 0.25
+Optimal value: 0.20833333333333326
+Optimal value: 0.16666666666666674
+Optimal value: 0.125
+Optimal value: 0.08333333333333326
+Optimal value: 0.04166666666666674
+Optimal value: 0.0
+actual comb size: 15
+get:73,time:0
+not get:0,time:0
+len_region: 7
+ ... (more hidden) ... ... (more hidden) ...
+len_region: 60
+ ... (more hidden) ... ... (more hidden) ...
+select action: [7, 5, 30, 21, 0, 32, 46, 6, 2, 13, 11, 38, 29, 23, 12, 44, 1]  from len of  60
+14
+Xrvs_cons: ['X112']
+Wrvs_cons: ['W1', 'W1,W2']
+Optimal value: 2.0
+Optimal value: 1.8333333333333335
+Optimal value: 1.6666666666666665
+Optimal value: 1.5
+Optimal value: 1.3333333333333335
+Optimal value: 1.166666666666667
+Optimal value: 1.0
+Optimal value: 0.9166666666666667
+Optimal value: 0.8333333333333334
+Optimal value: 0.75
+Optimal value: 0.6666666666666667
+Optimal value: 0.5833333333333334
+Optimal value: 0.5
+Optimal value: 0.45833333333333326
+Optimal value: 0.41666666666666674
+Optimal value: 0.375
+Optimal value: 0.33333333333333326
+Optimal value: 0.29166666666666674
+Optimal value: 0.25
+Optimal value: 0.20833333333333326
+Optimal value: 0.16666666666666674
+Optimal value: 0.125
+Optimal value: 0.08333333333333326
+Optimal value: 0.04166666666666674
+Optimal value: 0.0
+actual comb size: 15
+get:73,time:0
+not get:0,time:0
+len_region: 7
+ ... (more hidden) ... ... (more hidden) ...
+len_region: 59
+ ... (more hidden) ... ... (more hidden) ...
+select action: [31, 5, 19, 10, 0, 41, 23, 2, 6, 51, 34, 42, 26, 9, 45, 39, 1, 4]  from len of  59
+14
+Xrvs_cons: ['X112']
+Wrvs_cons: ['W1', 'W1,W2']
+Optimal value: 2.0
+Optimal value: 1.8333333333333335
+Optimal value: 1.6666666666666665
+Optimal value: 1.5
+Optimal value: 1.3333333333333335
+Optimal value: 1.166666666666667
+Optimal value: 1.0
+Optimal value: 0.9166666666666667
+Optimal value: 0.8333333333333334
+Optimal value: 0.75
+Optimal value: 0.6666666666666667
+Optimal value: 0.5833333333333334
+Optimal value: 0.5
+Optimal value: 0.45833333333333326
+Optimal value: 0.41666666666666674
+Optimal value: 0.375
+Optimal value: 0.33333333333333326
+Optimal value: 0.29166666666666674
+Optimal value: 0.25
+Optimal value: 0.20833333333333326
+Optimal value: 0.16666666666666674
+Optimal value: 0.125
+Optimal value: 0.08333333333333326
+Optimal value: 0.04166666666666674
+Optimal value: 0.0
+actual comb size: 15
+get:71,time:0
+not get:0,time:0
+len_region: 7
+ ... (more hidden) ... ... (more hidden) ...
+len_region: 60
+ ... (more hidden) ... ... (more hidden) ...
+select action: [23, 5, 41, 39, 0, 7, 34, 2, 6, 54, 26, 13, 40, 36, 1, 4, 31]  from len of  60
+14
+Xrvs_cons: ['X112']
+Wrvs_cons: ['W1', 'W1,W2']
+Optimal value: 2.0
+Optimal value: 1.8333333333333335
+Optimal value: 1.6666666666666665
+Optimal value: 1.5
+Optimal value: 1.3333333333333335
+Optimal value: 1.166666666666667
+Optimal value: 1.0
+Optimal value: 0.9166666666666667
+Optimal value: 0.8333333333333334
+Optimal value: 0.75
+Optimal value: 0.6666666666666667
+Optimal value: 0.5833333333333334
+Optimal value: 0.5
+Optimal value: 0.45833333333333326
+Optimal value: 0.41666666666666674
+Optimal value: 0.375
+Optimal value: 0.33333333333333326
+Optimal value: 0.29166666666666674
+Optimal value: 0.25
+Optimal value: 0.20833333333333326
+Optimal value: 0.16666666666666674
+Optimal value: 0.125
+Optimal value: 0.08333333333333326
+Optimal value: 0.04166666666666674
+Optimal value: 0.0
+actual comb size: 15
+get:72,time:0
+not get:0,time:0
+len_region: 7
+ ... (more hidden) ... ... (more hidden) ...
+len_region: 59
+ ... (more hidden) ... ... (more hidden) ...
+select action: [44, 5, 42, 23, 0, 32, 29, 2, 6, 7, 47, 53, 41, 22, 48, 1, 4, 52]  from len of  59
